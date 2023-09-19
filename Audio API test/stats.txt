@@ -1,0 +1,30 @@
+{
+    "recognize_google": [
+        5.251662611961365,
+        "hey everyone this project started as a tech demo but these days it needs more time than I have to keep up with all the pull requests and issues therefore I'd like to put out an open invite for collaborators just reach out at me if you're interested"
+    ],
+    "recognize_sphinx": [
+        2.570311164855957,
+        "hey everyone this project started as attack them all with these days he needs more time than i have to keep up with all the all requests and issues therefore i'd like to put out an open invite for collaborators just reach out at me if you're interested"
+    ],
+    "vosk022": [
+        7.752689099311828,
+        "{\n  \"text\" : \"hey everyone this project started as a tech demo but these days it needs more time than i have to keep up with all the pull requests and issues therefore i'd like to put out an open invite for collaborators just reach out at me if you're interested\"\n}"
+    ],
+    "vosk015": [
+        7.724567556381226,
+        "{\n  \"text\" : \"hey everyone this project started as a tech demo but these days it needs more time than i have to keep up with all the pull requests and issues therefore i'd like to put out an open invite for collaborators just reach out at me if you're interested\"\n}"
+    ],
+    "whisperTiny": [
+        0.501175856590271,
+        " Hey everyone, this project started as a tech demo, but these days it needs more time than I have to keep up with all the pull requests and issues. Therefore, I'd like to put out an open invite for collaborators, just reach out at me if you're interested."
+    ],
+    "whisperBase": [
+        0.7177356243133545,
+        " Hey everyone, this project started as a tech demo, but these days it needs more time than I have to keep up with all the pull requests and issues. Therefore, I'd like to put out an open invite for collaborators. Just reach out at me if you're interested."
+    ],
+    "whisperSmall": [
+        1.346243190765381,
+        " Hey everyone, this project started as a tech demo, but these days it needs more time than I have to keep up with all the pull requests and issues. Therefore, I'd like to put out an open invite for collaborators. Just reach out at me if you're interested."
+    ]
+}
