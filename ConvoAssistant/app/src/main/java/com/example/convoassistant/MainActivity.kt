@@ -131,6 +131,7 @@ class MainActivity : AppCompatActivity() {
                     data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
 
                 // Run the OpenAI request in a subroutine.
+                var outputText = ""
                 runBlocking {
                     launch {
                         val response: HttpResponse = httpClient.request("https://api.openai.com/v1/chat/completions") {
@@ -154,16 +155,19 @@ class MainActivity : AppCompatActivity() {
 
                         val responseObject: OpenAIResponse = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
 
-                        val outputText = responseObject.choices[0].message.content
-
-                        // on below line we are setting data
-                        // to our output text view.
-                        outputTV.text = outputText
-
-                        ttsInterface.speakOut(outputText)
+                        outputText = responseObject.choices[0].message.content
 
                     }
                 }
+
+                // on below line we are setting data
+                // to our output text view.
+                outputTV.text = outputText
+
+                //text to speech
+                ttsInterface.speakOut(outputText)
+
+
             }
         }
     }
