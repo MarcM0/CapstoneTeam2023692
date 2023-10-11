@@ -15,6 +15,17 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.convoassistant.databinding.ActivityMainBinding
 
+import io.ktor.client.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import com.google.gson.Gson
+import kotlinx.coroutines.*
+
+val gsonParser = Gson()
+val httpClient = HttpClient(Android)
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -112,11 +123,35 @@ class MainActivity : AppCompatActivity() {
                 val res: ArrayList<String> =
                     data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
 
-                // on below line we are setting data
-                // to our output text view.
-                outputTV.setText(
-                    Objects.requireNonNull(res)[0]
-                )
+                // Run the OpenAI request in a subroutine.
+                runBlocking {
+                    launch {
+                        val response: HttpResponse = httpClient.request("https://api.openai.com/v1/chat/completions") {
+                            method = HttpMethod.Post
+                            headers {
+                                append("Content-Type", "application/json")
+                                append(
+                                    "Authorization",
+                                    "Bearer $openAIAPIKey"
+                                )
+                            }
+                            setBody(
+                                """{
+                                "model": "gpt-3.5-turbo",
+                                "messages": [{"role": "user", "content": "${Objects.requireNonNull(res)[0]}"}],
+                                "temperature": 0.7
+                            }"""
+                            )
+                        }
+
+                        val responseObject: OpenAIResponse = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
+
+
+                        // on below line we are setting data
+                        // to our output text view.
+                        outputTV.text = responseObject.choices[0].message.content
+                    }
+                }
             }
         }
     }
