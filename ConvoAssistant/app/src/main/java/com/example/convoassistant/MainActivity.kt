@@ -139,7 +139,8 @@ class MainActivity : AppCompatActivity() {
                                 """{
                                 "model": "gpt-3.5-turbo",
                                 "messages": [{"role": "user", "content": "${Objects.requireNonNull(res)[0]}"}],
-                                "temperature": 0.7
+                                "temperature": 0.7,
+                                "max_tokens": 50
                             }"""
                             )
                         }
