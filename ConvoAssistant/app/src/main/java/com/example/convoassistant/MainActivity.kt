@@ -29,6 +29,7 @@ val httpClient = HttpClient(Android)
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var ttsInterface: TTSInterfaceClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         setupMic()
+        ttsInterface = TTSInterfaceClass(this)
     }
 
     //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
@@ -107,6 +109,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    public override fun onDestroy() {
+        ttsInterface.onDestroy()
+        super.onDestroy()
+    }
+
     // on below line we are calling on activity result method.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -147,10 +154,14 @@ class MainActivity : AppCompatActivity() {
 
                         val responseObject: OpenAIResponse = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
 
+                        val outputText = responseObject.choices[0].message.content
 
                         // on below line we are setting data
                         // to our output text view.
-                        outputTV.text = responseObject.choices[0].message.content
+                        outputTV.text = outputText
+
+                        ttsInterface.speakOut(outputText)
+
                     }
                 }
             }
