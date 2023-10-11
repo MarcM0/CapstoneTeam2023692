@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_weight="1"
     tools:context=".ui.settings.SettingsFragment">
 
     <Button
@@ -34,22 +35,28 @@
 
     <EditText
         android:id="@+id/promptBox"
-        android:layout_width="247dp"
-        android:layout_height="378dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="80dp"
         android:layout_marginEnd="80dp"
+        android:elegantTextHeight="false"
         android:ems="10"
-        android:inputType="text"
+        android:hint="Write LLM prompt here for RTA Mode"
+        android:inputType="textMultiLine"
+        android:scrollHorizontally="false"
+        android:textAlignment="textStart"
+        app:layout_constraintBottom_toTopOf="@+id/reset_button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="97dp" />
+        app:layout_constraintTop_toBottomOf="@+id/promptTitle" />
 
     <TextView
         android:id="@+id/promptTitle"
         android:layout_width="85dp"
         android:layout_height="28dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="70dp"
         android:text="LLM Prompt"
-        app:layout_constraintBottom_toTopOf="@+id/promptBox"
-        app:layout_constraintStart_toStartOf="@+id/promptBox" />
+        app:layout_constraintStart_toStartOf="@+id/promptBox"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
