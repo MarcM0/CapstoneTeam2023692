@@ -16,6 +16,7 @@
         android:background="#00FFFFFF"
         android:scaleType="fitCenter"
         android:src="@drawable/baseline_mic_24"
+        android:tint="#787878"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

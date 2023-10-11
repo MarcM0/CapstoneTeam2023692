@@ -17,11 +17,9 @@ import com.example.convoassistant.databinding.ActivityMainBinding
 
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import com.google.gson.Gson
-import kotlinx.coroutines.*
+
+import kotlin.concurrent.thread
 
 val gsonParser = Gson()
 val httpClient = HttpClient(Android)
@@ -57,11 +55,11 @@ class MainActivity : AppCompatActivity() {
     //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
     // on below line we are creating variables
     // for text view and image view
-    lateinit var outputTV: TextView
-    lateinit var micIB: ImageButton
+    private lateinit var outputTV: TextView
+    private lateinit var micIB: ImageButton
     private val REQUEST_CODE_SPEECH_INPUT = 1
 
-    fun setupMic()
+    private fun setupMic()
     {
         //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
         // initializing variables of list view with their ids.
@@ -125,50 +123,28 @@ class MainActivity : AppCompatActivity() {
             // on below line we are checking if result code is ok
             if (resultCode == RESULT_OK && data != null) {
 
-                // in that case we are extracting the
-                // data from our array list
-                val res: ArrayList<String> =
-                    data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
+                thread(start = true) {
+                    // in that case we are extracting the
+                    // data from our array list
+                    val res: ArrayList<String> =
+                        data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
 
-                // Run the OpenAI request in a subroutine.
-                var outputText = ""
-                runBlocking {
-                    launch {
-                        val response: HttpResponse = httpClient.request("https://api.openai.com/v1/chat/completions") {
-                            method = HttpMethod.Post
-                            headers {
-                                append("Content-Type", "application/json")
-                                append(
-                                    "Authorization",
-                                    "Bearer $openAIAPIKey"
-                                )
-                            }
-                            setBody(
-                                """{
-                                "model": "gpt-3.5-turbo",
-                                "messages": [{"role": "user", "content": "${Objects.requireNonNull(res)[0]}"}],
-                                "temperature": 0.7,
-                                "max_tokens": 50
-                            }"""
-                            )
-                        }
+                    // Run the OpenAI request in a subroutine.
+                    val outputText = makeChatGPTRequest(Objects.requireNonNull(res)[0])
 
-                        val responseObject: OpenAIResponse = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
+                    // on below line we are setting data
+                    // to our output text view.
+                    runOnUiThread(Runnable {
+                        outputTV.text = (outputText)
+                    })
 
-                        outputText = responseObject.choices[0].message.content
+                    //text to speech
+                    ttsInterface.speakOut(outputText)
 
-                    }
+
                 }
-
-                // on below line we are setting data
-                // to our output text view.
-                outputTV.text = outputText
-
-                //text to speech
-                ttsInterface.speakOut(outputText)
-
-
             }
+
         }
     }
 }

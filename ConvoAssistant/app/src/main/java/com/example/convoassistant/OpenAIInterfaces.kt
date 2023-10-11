@@ -1,5 +1,15 @@
 package com.example.convoassistant
 
+import io.ktor.client.request.headers
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpMethod
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+
 
 class OpenAIUsage(
     // based off of https://platform.openai.com/docs/api-reference/authentication.
@@ -29,3 +39,37 @@ class OpenAIResponse(
     val usage: OpenAIUsage,
     val choices: List<OpenAIChoices>
 ){}
+
+fun makeChatGPTRequest(prompt: String) : String
+{
+    lateinit var responseObject: OpenAIResponse
+    runBlocking {
+        launch {
+            val response: HttpResponse = httpClient.request("https://api.openai.com/v1/chat/completions") {
+                method = HttpMethod.Post
+                headers {
+                    append("Content-Type", "application/json")
+                    append(
+                        "Authorization",
+                        "Bearer $openAIAPIKey"
+                    )
+                }
+                setBody(
+                    """{
+                                "model": "gpt-3.5-turbo",
+                                "messages": [{"role": "user", "content": "$prompt"}],
+                                "temperature": 0.7,
+                                "max_tokens": 50
+                            }"""
+                )
+            }
+
+            responseObject = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
+
+
+
+        }
+    }
+
+    return responseObject.choices[0].message.content
+}
