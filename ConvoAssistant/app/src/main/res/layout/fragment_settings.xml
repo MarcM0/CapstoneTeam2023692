@@ -59,7 +59,6 @@
                 android:id="@+id/promptTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:layout_marginLeft="20dp"
                 android:text="LLM Prompt"
                 />
@@ -68,14 +67,12 @@
                 android:id="@+id/promptBox"
                 android:layout_width="match_parent"
                 android:layout_height="151dp"
-                android:elegantTextHeight="false"
-                android:ems="10"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:hint="Write LLM prompt here for RTA Mode"
                 android:inputType="textMultiLine"
+                android:gravity="top"
                 android:scrollHorizontally="false"
-                android:textAlignment="textStart" />
+                />
 
             <TextView
                 android:id="@+id/tokenCountTitle"
@@ -87,14 +84,12 @@
 
             <EditText
                 android:id="@+id/tokenCountBox"
-                android:layout_width="match_parent"
+                android:layout_width="75dp"
                 android:layout_height="39dp"
                 android:elegantTextHeight="false"
-                android:ems="10"
                 android:inputType="number"
                 android:scrollHorizontally="false"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:textAlignment="textStart" />
 
             <Button
