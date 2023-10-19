@@ -37,4 +37,12 @@ class SettingWrapper(activity: Activity) {
         }
     }
 
+    //write single setting, Slow, avoid using
+    fun writeSingle(key: String, value: String){
+        with (sharedPref.edit()) {
+            putString(key, value)
+            commit()
+        }
+    }
+
 }
