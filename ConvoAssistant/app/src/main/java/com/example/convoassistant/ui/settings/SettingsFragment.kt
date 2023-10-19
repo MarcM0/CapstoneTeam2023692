@@ -49,6 +49,7 @@ class SettingsFragment : Fragment() {
         //set button functions
         val defaultsButton: Button = requireView().findViewById(R.id.reset_button)
         defaultsButton.setOnClickListener {
+            fixInputs()
             settingsObj.resetDefaults() //reset settings
             populateBoxes() //used so ui updates
         }
@@ -56,12 +57,22 @@ class SettingsFragment : Fragment() {
         //write settings to phone
         val saveButton: Button = requireView().findViewById(R.id.save_button)
         saveButton.setOnClickListener {
+            fixInputs()
             settingsObj.write(mapOf(
                 "RTA_LLM_Prompt" to View_RTA_LLM_Prompt.getText().toString(),
                 "RTA_LLM_Output_Token_Count" to View_RTA_LLM_Output_Token_Count.getText().toString(),
             ))
         }
 
+    }
+
+    private fun fixInputs()
+    {
+        //make sure num tokens is 1 or more
+        val tokenStr = View_RTA_LLM_Output_Token_Count.getText().toString()
+        if(tokenStr.equals("") || tokenStr.toInt()<1){
+            View_RTA_LLM_Output_Token_Count.setText("1")
+        }
     }
 
     // populate boxes from settings
