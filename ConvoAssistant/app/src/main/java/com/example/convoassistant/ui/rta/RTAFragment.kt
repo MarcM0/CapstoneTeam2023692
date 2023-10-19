@@ -46,7 +46,9 @@ class RTAFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //set up microphone
         setupMic()
+        //set up text to speech
         ttsInterface = TTSInterfaceClass(requireContext())
     }
 
