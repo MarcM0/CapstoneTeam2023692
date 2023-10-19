@@ -103,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="20dp"
-                android:text="Reset Default"
+                android:text="Reset Defaults"
                 />
 
             <Button
