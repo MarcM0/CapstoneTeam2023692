@@ -16,7 +16,7 @@ class SettingWrapper(activity: Activity) {
     private val defaultVals = mapOf(
                                 "Voice" to "default", //todo voice for client
                                 "Voice_Options" to "", //todo, list of all voices for scroll menu
-                                "RTA_LLM_Prompt" to "Answer the following in one sentence. Never decline to answer the question or mention that you are an AI model. ", //defaultRTAPrompt
+                                "RTA_LLM_Prompt" to "Answer the following in one sentence. Never decline to answer the question or mention that you are an AI model. ", //todo set to defaultRTAPrompt
                                 "RTA_LLM_Output_Token_Count" to "50",
                                 )
 
