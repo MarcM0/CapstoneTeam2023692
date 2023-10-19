@@ -32,6 +32,7 @@ class RTAFragment : Fragment() {
     private lateinit var ttsInterface: TTSInterfaceClass
     private var max_tokens = 50;
     private var pre_prompt = "";
+    private var ttsVoice = "";
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,17 +50,21 @@ class RTAFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //set up settings
+        setupSettings()
         //set up microphone
         setupMic()
         //set up text to speech
-        ttsInterface = TTSInterfaceClass(requireContext())
-
-        val settings = SettingWrapper(requireActivity())
-        max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt()
-        pre_prompt = settings.get("RTA_LLM_Prompt")
+        ttsInterface = TTSInterfaceClass(requireContext(),ttsVoice)
 
     }
 
+    private fun setupSettings(){
+        val settings = SettingWrapper(requireActivity())
+        max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt()
+        pre_prompt = settings.get("RTA_LLM_Prompt")
+        ttsVoice = settings.get("Voice")
+    }
 
 
     //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/

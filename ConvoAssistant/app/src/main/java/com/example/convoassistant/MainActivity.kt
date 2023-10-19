@@ -19,6 +19,7 @@ val httpClient = HttpClient(Android)
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var settingsInterface: SettingWrapper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,5 +41,9 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
 
+        //populate voices settings
+        settingsInterface = SettingWrapper(this)
+        val ttsInterface = TTSInterfaceClass(this,"")
+        ttsInterface.populateVoicesOptions(settingsInterface)
     }
 }

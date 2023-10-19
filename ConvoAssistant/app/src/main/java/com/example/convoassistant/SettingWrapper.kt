@@ -14,6 +14,7 @@ class SettingWrapper(activity: Activity) {
     private val defaultRTAPrompt = "The following is an interaction between you and a user. You are a therapist and the user is someone having smoking issues. Give a SHORT reflection to the user's response. The reflection must be a plausible guess or assumption about the user's underlying emotions, values, or chain of thought. The reflection must be very short. The reflection must be a statement and not a question. Don't always use \"it seems like\" or \"it sounds like\" or \"you\" at the begining. Don't always use the phrase \"important to you\" or \"important for you\". "
     //DEFAULTS, all must be strings
     private val defaultVals = mapOf(
+                                "Voice" to "",
                                 "RTA_LLM_Prompt" to "Answer the following in one sentence. Never decline to answer the question or mention that you are an AI model. ", //todo set to defaultRTAPrompt
                                 "RTA_LLM_Output_Token_Count" to "50",
                                 )
@@ -33,6 +34,15 @@ class SettingWrapper(activity: Activity) {
     fun write(pairs: Map<String,String>){
         with (sharedPref.edit()) {
             pairs.forEach { (key, value) -> putString(key, value); }
+            commit()
+        }
+    }
+
+    // write value to entry associated with key
+    // for single pair
+    fun write(key: String, value: String){
+        with (sharedPref.edit()) {
+            putString(key, value)
             commit()
         }
     }
