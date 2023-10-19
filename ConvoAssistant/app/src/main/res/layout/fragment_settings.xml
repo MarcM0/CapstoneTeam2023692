@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,56 +9,116 @@
     android:layout_weight="1"
     tools:context=".ui.settings.SettingsFragment">
 
-    <Button
-        android:id="@+id/reset_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="158dp"
-        android:layout_marginEnd="158dp"
-        android:layout_marginBottom="20dp"
-        android:text="Reset Default"
-        app:layout_constraintBottom_toTopOf="@+id/save_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/generalSettingsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:layout_marginLeft="70dp"
+                android:text="General"
+                android:textStyle="bold"
+                android:textSize="32dp"
+                />
 
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="158dp"
-        android:layout_marginEnd="158dp"
-        android:layout_marginBottom="105dp"
-        android:text="Save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/VoiceSelectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:layout_marginLeft="70dp"
+                android:text="Voice"
+                />
 
-    <EditText
-        android:id="@+id/promptBox"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="80dp"
-        android:layout_marginEnd="80dp"
-        android:elegantTextHeight="false"
-        android:ems="10"
-        android:hint="Write LLM prompt here for RTA Mode"
-        android:inputType="textMultiLine"
-        android:scrollHorizontally="false"
-        android:textAlignment="textStart"
-        app:layout_constraintBottom_toTopOf="@+id/reset_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.666"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/promptTitle" />
+            <Spinner
+                android:id="@+id/VoiceSelection"
+                android:layout_width="293dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="70dp"
+                android:spinnerMode="dropdown" />
 
-    <TextView
-        android:id="@+id/promptTitle"
-        android:layout_width="85dp"
-        android:layout_height="28dp"
-        android:layout_marginTop="70dp"
-        android:text="LLM Prompt"
-        app:layout_constraintStart_toStartOf="@+id/promptBox"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/rtaSettingsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:layout_marginLeft="70dp"
+                android:text="RTA Mode"
+                android:textStyle="bold"
+                android:textSize="32dp"
+                />
+
+            <TextView
+                android:id="@+id/promptTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:layout_marginLeft="70dp"
+                android:text="LLM Prompt"
+                />
+
+            <EditText
+                android:id="@+id/promptBox"
+                android:layout_width="271dp"
+                android:layout_height="151dp"
+                android:layout_marginStart="80dp"
+                android:layout_marginEnd="80dp"
+                android:elegantTextHeight="false"
+                android:ems="10"
+                android:layout_marginLeft="70dp"
+                android:hint="Write LLM prompt here for RTA Mode"
+                android:inputType="textMultiLine"
+                android:scrollHorizontally="false"
+                android:textAlignment="textStart" />
+
+            <TextView
+                android:id="@+id/tokenCountTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="70dp"
+                android:text="LLM Output Token Count"
+                />
+
+            <EditText
+                android:id="@+id/tokenCountBox"
+                android:layout_width="200dp"
+                android:layout_height="39dp"
+                android:layout_marginStart="80dp"
+                android:layout_marginEnd="80dp"
+                android:elegantTextHeight="false"
+                android:ems="10"
+                android:inputType="number"
+                android:scrollHorizontally="false"
+                android:layout_marginLeft="70dp"
+                android:textAlignment="textStart" />
+
+            <Button
+                android:id="@+id/reset_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
+                android:layout_marginLeft="70dp"
+                android:text="Reset Default"
+                />
+
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="70dp"
+
+                android:text="Save"
+                />
+
+
+
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
