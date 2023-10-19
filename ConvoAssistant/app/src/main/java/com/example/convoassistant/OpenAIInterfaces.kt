@@ -40,7 +40,7 @@ class OpenAIResponse(
     val choices: List<OpenAIChoices>
 ){}
 
-fun makeChatGPTRequest(prompt: String) : String
+fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, ) : String
 {
     lateinit var responseObject: OpenAIResponse
     runBlocking {
@@ -59,7 +59,7 @@ fun makeChatGPTRequest(prompt: String) : String
                                 "model": "gpt-3.5-turbo",
                                 "messages": [{"role": "user", "content": "$prompt"}],
                                 "temperature": 0.7,
-                                "max_tokens": 50
+                                "max_tokens": $max_tokens
                             }"""
                 )
             }

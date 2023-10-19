@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.convoassistant.R
+import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
@@ -29,6 +30,8 @@ class RTAFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var ttsInterface: TTSInterfaceClass
+    private var max_tokens = 50;
+    private var pre_prompt = "";
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +53,11 @@ class RTAFragment : Fragment() {
         setupMic()
         //set up text to speech
         ttsInterface = TTSInterfaceClass(requireContext())
+
+        val settings = SettingWrapper(requireActivity())
+        max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt()
+        pre_prompt = settings.get("RTA_LLM_Prompt")
+
     }
 
 
@@ -127,7 +135,7 @@ class RTAFragment : Fragment() {
                         data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
 
                     // Run the OpenAI request in a subroutine.
-                    val outputText = makeChatGPTRequest(Objects.requireNonNull(res)[0])
+                    val outputText = makeChatGPTRequest(pre_prompt+Objects.requireNonNull(res)[0],max_tokens)
 
                     // on below line we are setting data
                     // to our output text view.
