@@ -70,8 +70,7 @@ abstract class STTInterfaceClass(): Fragment() {
                 // data from our array list
                 val res: ArrayList<String> =
                     data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
-
-                Log.d("hello","m9")
+                
                 onMicResult(Objects.requireNonNull(res)[0])
             }
 
