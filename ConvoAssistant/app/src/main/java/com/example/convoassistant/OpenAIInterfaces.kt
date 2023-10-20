@@ -42,7 +42,8 @@ class OpenAIResponse(
 
 fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, ) : String
 {
-    lateinit var responseObject: OpenAIResponse
+    lateinit var output: String
+    val cleanPrompt = prompt.replace("\"", "'").replace("\n", " ")
     runBlocking {
         launch {
             val response: HttpResponse = httpClient.request("https://api.openai.com/v1/chat/completions") {
@@ -57,19 +58,25 @@ fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, ) : String
                 setBody(
                     """{
                                 "model": "gpt-3.5-turbo",
-                                "messages": [{"role": "user", "content": "$prompt"}],
+                                "messages": [{"role": "user", "content": "$cleanPrompt"}],
                                 "temperature": 0.7,
                                 "max_tokens": $max_tokens
                             }"""
                 )
             }
 
-            responseObject = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
-
-
+            var responseObject = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
+            if(responseObject.choices == null)
+            {
+                output = "Error occured in chatgpt call"
+            }
+            else
+            {
+                output = responseObject.choices[0].message.content
+            }
 
         }
     }
 
-    return responseObject.choices[0].message.content
+    return output
 }
