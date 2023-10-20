@@ -14,14 +14,12 @@ class TTSInterfaceClass(context: Context) : TextToSpeech.OnInitListener {
 
     //initialize text to speech
     init {
-        Log.d("TTS", "Ran init")
         tts = TextToSpeech(context, this)
     }
 
     //runs when text to speech is initialized
     override fun onInit(status: Int) {
 
-        Log.d("TTS", "Ran Oninit")
         if (status == TextToSpeech.SUCCESS) {
             val result = tts!!.setLanguage(Locale.US)
 
@@ -33,7 +31,6 @@ class TTSInterfaceClass(context: Context) : TextToSpeech.OnInitListener {
 
     // say textToSpeaak out loud
     fun speakOut(textToSpeak: String) {
-        Log.d("TTS", "Ran Speakout")
         tts!!.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, null,"")
     }
 
