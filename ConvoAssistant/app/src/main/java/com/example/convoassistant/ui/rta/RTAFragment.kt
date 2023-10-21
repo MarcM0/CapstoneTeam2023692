@@ -25,6 +25,8 @@ class RTAFragment : STTFragment(){ // Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    
     private lateinit var ttsInterface: TTSInterfaceClass
     private var max_tokens = 50;
     private var pre_prompt = "";
