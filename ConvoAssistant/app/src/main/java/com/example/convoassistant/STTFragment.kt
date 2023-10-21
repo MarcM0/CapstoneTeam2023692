@@ -2,7 +2,6 @@ package com.example.convoassistant
 
 import android.content.Intent
 import android.speech.RecognizerIntent
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -13,7 +12,7 @@ import java.util.Objects
 
 //class interface for default built in speech to text
 //Based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
-abstract class STTInterfaceClass(): Fragment() {
+abstract class STTFragment(): Fragment() {
     private val REQUEST_CODE_SPEECH_INPUT = 1
     protected abstract fun onMicResult(input: String)
 

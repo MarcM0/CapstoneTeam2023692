@@ -8,7 +8,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.example.convoassistant.R
-import com.example.convoassistant.STTInterfaceClass
+import com.example.convoassistant.STTFragment
 import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
@@ -18,7 +18,7 @@ import kotlin.concurrent.thread
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
 
-class RTAFragment : STTInterfaceClass(){ // Fragment() {
+class RTAFragment : STTFragment(){ // Fragment() {
 
     private var _binding: FragmentRtaBinding? = null
 
