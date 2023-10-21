@@ -12,6 +12,8 @@ import com.example.convoassistant.R
 import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.databinding.FragmentSettingsBinding
 
+//Settings interface
+
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null

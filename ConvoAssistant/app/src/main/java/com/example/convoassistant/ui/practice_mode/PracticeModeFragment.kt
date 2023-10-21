@@ -9,6 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.convoassistant.databinding.FragmentPracticeModeBinding
 
+// Practice mode interface
+// Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
+
+
 class PracticeModeFragment : Fragment() {
 
     private var _binding: FragmentPracticeModeBinding? = null

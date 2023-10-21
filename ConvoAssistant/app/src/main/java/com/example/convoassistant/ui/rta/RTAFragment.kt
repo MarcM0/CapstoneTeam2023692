@@ -15,6 +15,9 @@ import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
 import kotlin.concurrent.thread
 
+// Real time assistant mode interface
+// Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
+
 class RTAFragment : STTInterfaceClass(){ // Fragment() {
 
     private var _binding: FragmentRtaBinding? = null
@@ -66,13 +69,13 @@ class RTAFragment : STTInterfaceClass(){ // Fragment() {
     }
 
     override fun onMicResult(input: String){
+        //run in thread so we don't block main
         thread(start = true) {
 
             // Run the OpenAI request in a subroutine.
             val outputText = makeChatGPTRequest(pre_prompt+input,max_tokens)
 
-            // on below line we are setting data
-            // to our output text view.
+            // display output text on screen
             requireActivity().runOnUiThread(Runnable {
                 outputTV.text = (outputText)
             })
