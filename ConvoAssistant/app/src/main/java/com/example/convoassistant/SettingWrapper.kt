@@ -11,7 +11,6 @@ class SettingWrapper(activity: Activity) {
     init {
         sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
     }
-    private val defaultRTAPrompt = "The following is an interaction between you and a user. You are a therapist and the user is someone having smoking issues. Give a SHORT reflection to the user's response. The reflection must be a plausible guess or assumption about the user's underlying emotions, values, or chain of thought. The reflection must be very short. The reflection must be a statement and not a question. Don't always use \"it seems like\" or \"it sounds like\" or \"you\" at the begining. Don't always use the phrase \"important to you\" or \"important for you\". "
     //DEFAULTS, all must be strings
     private val defaultVals = mapOf(
                                 "RTA_LLM_Prompt" to "", //todo set to defaultRTAPrompt

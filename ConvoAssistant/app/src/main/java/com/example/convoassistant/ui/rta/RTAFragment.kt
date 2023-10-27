@@ -18,7 +18,7 @@ import kotlin.concurrent.thread
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
 
-class RTAFragment : STTFragment(){ // Fragment() {
+class RTAFragment : STTFragment(){ // Fragment() { //todo put back to fragment once we do diarization
 
     private var _binding: FragmentRtaBinding? = null
 
