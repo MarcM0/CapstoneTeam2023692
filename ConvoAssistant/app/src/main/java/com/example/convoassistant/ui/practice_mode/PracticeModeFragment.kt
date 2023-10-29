@@ -70,6 +70,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         //set up text to speech
         ttsInterface = TTSInterfaceClass(requireContext())
 
+        //load settings
         val settings = SettingWrapper(requireActivity())
 
         scenario_tokens = settings.get("Pra_Scenario_LLM_Output_Token_Count").toInt()
@@ -79,6 +80,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
     }
 
+    //runs when speech to text returns result
     override fun onMicResult(input: String){
         //run in thread so we don't block main
         thread(start = true) {

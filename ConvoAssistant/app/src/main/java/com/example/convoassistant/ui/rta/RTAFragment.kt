@@ -64,12 +64,14 @@ class RTAFragment : STTFragment(){ // Fragment() { //todo put back to fragment o
         //set up text to speech
         ttsInterface = TTSInterfaceClass(requireContext())
 
+        //load settings
         val settings = SettingWrapper(requireActivity())
         max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt()
         pre_prompt = settings.get("RTA_LLM_Prompt")
 
     }
 
+    //runs when speech to text returns result
     override fun onMicResult(input: String){
         //run in thread so we don't block main
         thread(start = true) {
