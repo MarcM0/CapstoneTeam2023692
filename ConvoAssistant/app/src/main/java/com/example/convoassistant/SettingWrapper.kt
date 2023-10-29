@@ -13,8 +13,12 @@ class SettingWrapper(activity: Activity) {
     }
     //DEFAULTS, all must be strings
     private val defaultVals = mapOf(
-                                "RTA_LLM_Prompt" to "", //todo set to defaultRTAPrompt
+                                "RTA_LLM_Prompt" to NewReflectPrompt,
                                 "RTA_LLM_Output_Token_Count" to "50",
+                                "Pra_Scenario_LLM_Prompt" to  scenarioPrompt,
+                                "Pra_Rating_LLM_Prompt" to  NewRatePrompt,
+                                "Pra_Scenario_LLM_Output_Token_Count" to  "50",
+                                "Pra_Rating_LLM_Output_Token_Count" to  "50",
                                 )
 
     //gets value associated with key

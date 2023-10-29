@@ -20,7 +20,7 @@ import kotlin.concurrent.thread
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
 
 
-class PracticeModeFragment : STTFragment(){ // Fragment() { //todo put back to fragment once we do diarization
+class PracticeModeFragment : STTFragment(){ // Fragment() {
 
     private var _binding: FragmentPracticeModeBinding? = null
 
@@ -28,10 +28,14 @@ class PracticeModeFragment : STTFragment(){ // Fragment() { //todo put back to f
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private var scenario_tokens = 50;
+    private var rating_tokens = 50;
+    private var scenarioPrompt = "";
+    private var ratingPrompt = "";
+
 
     private lateinit var ttsInterface: TTSInterfaceClass
-    private var max_tokens = 50;
-    private var pre_prompt = "";
+
 
     //views
     private lateinit var outputTV: TextView
@@ -68,9 +72,10 @@ class PracticeModeFragment : STTFragment(){ // Fragment() { //todo put back to f
 
         val settings = SettingWrapper(requireActivity())
 
-        //TODO change these to be practice mode settings
-        max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt()
-        pre_prompt = settings.get("RTA_LLM_Prompt")
+        scenario_tokens = settings.get("Pra_Scenario_LLM_Output_Token_Count").toInt()
+        rating_tokens = settings.get("Pra_Rating_LLM_Output_Token_Count").toInt()
+        scenarioPrompt = settings.get("Pra_Scenario_LLM_Prompt")
+        ratingPrompt = settings.get("Pra_Rating_LLM_Prompt")
 
     }
 
@@ -79,7 +84,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() { //todo put back to f
         thread(start = true) {
 
             // Run the OpenAI request in a subroutine.
-            val outputText = makeChatGPTRequest(pre_prompt+input,max_tokens)
+            val outputText = makeChatGPTRequest(input,rating_tokens)
 
             // display output text on screen
             requireActivity().runOnUiThread(Runnable {

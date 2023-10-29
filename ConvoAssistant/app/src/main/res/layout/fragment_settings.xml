@@ -66,6 +66,91 @@
                 android:layout_marginLeft="20dp"
                 android:textAlignment="textStart" />
 
+            <TextView
+                android:id="@+id/praSettingsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="20dp"
+                android:text="Practice Mode"
+                android:textStyle="bold"
+                android:textSize="32dp"
+                />
+
+            <TextView
+                android:id="@+id/Pra_Scenario_LLM_PromptTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Scenario Generation LLM Prompt"
+                />
+
+            <EditText
+                android:id="@+id/Pra_Scenario_LLM_Prompt"
+                android:layout_width="match_parent"
+                android:layout_height="151dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:inputType="textMultiLine"
+                android:gravity="top"
+                android:scrollHorizontally="false"
+                />
+
+            <TextView
+                android:id="@+id/Pra_Scenario_LLM_Output_Token_CountTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Scenario LLM Output Token Count"
+                />
+
+            <EditText
+                android:id="@+id/Pra_Scenario_LLM_Output_Token_Count"
+                android:layout_width="75dp"
+                android:layout_height="39dp"
+                android:elegantTextHeight="false"
+                android:inputType="number"
+                android:scrollHorizontally="false"
+                android:layout_marginLeft="20dp"
+                android:textAlignment="textStart" />
+
+            <TextView
+                android:id="@+id/Pra_Rating_LLM_PromptTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="LLM Prompt for Rating Reflections"
+                />
+
+            <EditText
+                android:id="@+id/Pra_Rating_LLM_Prompt"
+                android:layout_width="match_parent"
+                android:layout_height="151dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:inputType="textMultiLine"
+                android:gravity="top"
+                android:scrollHorizontally="false"
+                />
+
+            <TextView
+                android:id="@+id/Pra_Rating_LLM_Output_Token_CountTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="LLM Output Token Count for Rating Reflections"
+                />
+
+            <EditText
+                android:id="@+id/Pra_Rating_LLM_Output_Token_Count"
+                android:layout_width="75dp"
+                android:layout_height="39dp"
+                android:elegantTextHeight="false"
+                android:inputType="number"
+                android:scrollHorizontally="false"
+                android:layout_marginLeft="20dp"
+                android:textAlignment="textStart" />
+
             <Button
                 android:id="@+id/reset_button"
                 android:layout_width="wrap_content"
