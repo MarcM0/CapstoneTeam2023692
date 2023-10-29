@@ -1,6 +1,24 @@
 package com.example.convoassistant
 
-const val NewReflectPrompt =  """The following is an interaction between a user and a person who is confiding in them. Give a SHORT reflection so that the user may or may not repeat to the person confiding in them. The reflection must be a plausible guess or assumption about the user's underlying emotions, values, or chain of thought. The reflection must be very short. The reflection must be a statement and not a question. Don't always use "it seems like" or "it sounds like" or "you" at the beginning. Don't always use the phrase "important to you" or "important for you". """;
+
+const val scenarioPrompt = """I am practicing reflections. Pretend you are a friend that is pouring your heart out to me. Give me a statement that I can reflect on."""
+
+//The following prompts are based off work by Jonathan Rose et al. The ones starting with "Original" are those that are direct copies, while the ones that start with "New" have been tuned by the team
+
+const val NewReflectPrompt =  """The following is an interaction between a user and a person who is confiding in them. Give a very short reflection so that the user may or may not repeat to the person confiding in them. The reflection must be a plausible guess or assumption about the user's underlying emotions, values, or thoughts. The reflection must be a statement and not a question. Don't always use "it seems like" or "it sounds like" or "you" or "important to you". """;
+
+const val NewRatePrompt = """ Evaluate the following reflection. Reflections are responses that show good listening.
+Good reflections may or may not:
+- Rephrase the statement 
+- Focus on only part of the statement
+- Go beyond and add substantial meaning to the statement.
+- Reasonable assumptions about emotions, values, and thoughts are encouraged, even if they aren't in the original statement. These assumptions don’t need to be correct, just plausible and not unkind. 
+Good reflections must be:
+- Statements not questions 
+- non-confrontational, not shaming nor criticizing nor antagonizing nor commanding nor imperative
+- Relevant to conversation
+Given this, output “True” if the reflection is good, or “False” and a very short explanation if it is not good.
+ """;
 
 const val OriginalReflectPrompt =  """The following is an interaction between you and a user. You are a therapist and the user is someone having smoking issues. Give a SHORT reflection to the user's response. The reflection must be a plausible guess or assumption about the user's underlying emotions, values, or chain of thought. The reflection must be very short. The reflection must be a statement and not a question. Don't always use "it seems like" or "it sounds like" or "you" at the beginning. Don't always use the phrase "important to you" or "important for you". """;
 
