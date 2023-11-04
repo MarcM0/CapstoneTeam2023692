@@ -122,19 +122,29 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
     // Callback for the new scenario prompt button.
     fun generatePracticePrompt(){
-        // Run the OpenAI request in a subroutine.
-        currentPracticeScenario = makeChatGPTRequest(scenarioPrompt, scenarioTokens)
 
-        // display output text on screen
-        requireActivity().runOnUiThread(Runnable {
-            outputTV.text = (currentPracticeScenario)
-        })
+        // Display a loading message.
+        outputTV.text = "Generating Practice Scenario..."
 
-        // Re-enable the mic button if there currently isn't a scenario.
-        checkIfResponseButtonShouldBeEnabled()
+        // Disable the generate prompt button.
+        generatePromptB.isEnabled = false;
 
-        //text to speech
-        ttsInterface.speakOut(currentPracticeScenario)
+        // run in thread so we don't block main
+        thread(start = true) {
+            // Run the OpenAI request in a subroutine.
+            currentPracticeScenario = makeChatGPTRequest(scenarioPrompt, scenarioTokens)
+
+            requireActivity().runOnUiThread(Runnable {
+                // display output text on screen
+                outputTV.text = (currentPracticeScenario)
+                // Re-enable the mic and new prompt buttons after generating a scenario.
+                checkIfResponseButtonShouldBeEnabled()
+                generatePromptB.isEnabled = true;
+            })
+
+            //text to speech
+            ttsInterface.speakOut(currentPracticeScenario)
+        }
     }
 
     // Enables or disables the mic button.
