@@ -79,13 +79,16 @@ class RTAFragment : STTFragment(){ // Fragment() { //todo put back to fragment o
             // Run the OpenAI request in a subroutine.
             val outputText = makeChatGPTRequest(pre_prompt+input,max_tokens)
 
-            // display output text on screen
-            requireActivity().runOnUiThread(Runnable {
-                outputTV.text = (outputText)
-            })
+            /** check if activity still exist */
+            if (getActivity() != null) {
+                // display output text on screen
+                requireActivity().runOnUiThread(Runnable {
+                    outputTV.text = (outputText)
+                })
 
-            //text to speech
-            ttsInterface.speakOut(outputText)
+                //text to speech
+                ttsInterface.speakOut(outputText)
+            }
 
 
         }

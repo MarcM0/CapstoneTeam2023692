@@ -106,16 +106,19 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
             // Clear the current scenario.
             currentPracticeScenario = ""
-            checkIfResponseButtonShouldBeEnabled()
+
 
             // display output text on screen
-            requireActivity().runOnUiThread(Runnable {
-                outputTV.text = (outputText)
-            })
+            /** check if activity still exist */
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(Runnable {
+                    checkIfResponseButtonShouldBeEnabled()
+                    outputTV.text = (outputText)
+                })
 
-            //text to speech
-            ttsInterface.speakOut(outputText)
-
+                //text to speech
+                ttsInterface.speakOut(outputText)
+            }
 
         }
     }
@@ -134,16 +137,20 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
             // Run the OpenAI request in a subroutine.
             currentPracticeScenario = makeChatGPTRequest(scenarioPrompt, scenarioTokens)
 
-            requireActivity().runOnUiThread(Runnable {
-                // display output text on screen
-                outputTV.text = (currentPracticeScenario)
-                // Re-enable the mic and new prompt buttons after generating a scenario.
-                checkIfResponseButtonShouldBeEnabled()
-                generatePromptB.isEnabled = true;
-            })
+            /** check if activity still exist */
+            if (getActivity() != null) {
 
-            //text to speech
-            ttsInterface.speakOut(currentPracticeScenario)
+                requireActivity().runOnUiThread(Runnable {
+                    // display output text on screen
+                    outputTV.text = (currentPracticeScenario)
+                    // Re-enable the mic and new prompt buttons after generating a scenario.
+                    checkIfResponseButtonShouldBeEnabled()
+                    generatePromptB.isEnabled = true;
+                })
+
+                //text to speech
+                ttsInterface.speakOut(currentPracticeScenario)
+            }
         }
     }
 
