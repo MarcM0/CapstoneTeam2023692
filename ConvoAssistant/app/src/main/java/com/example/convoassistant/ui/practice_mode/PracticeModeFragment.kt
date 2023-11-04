@@ -129,6 +129,10 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         // Display a loading message.
         outputTV.text = "Generating Practice Scenario..."
 
+        // Clear the existing scenario.
+        currentPracticeScenario = ""
+        checkIfResponseButtonShouldBeEnabled()
+
         // Disable the generate prompt button.
         generatePromptB.isEnabled = false;
 
