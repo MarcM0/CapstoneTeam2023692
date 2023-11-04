@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.example.convoassistant.R
@@ -15,6 +16,7 @@ import com.example.convoassistant.databinding.FragmentPracticeModeBinding
 import com.example.convoassistant.makeChatGPTRequest
 import com.example.convoassistant.ui.practice_mode.PracticeModeViewModel
 import kotlin.concurrent.thread
+import android.text.method.ScrollingMovementMethod
 
 // Practice mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
@@ -28,11 +30,12 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private var scenario_tokens = 50;
-    private var rating_tokens = 50;
+    private var scenarioTokens = 50;
+    private var ratingTokens = 50;
     private var scenarioPrompt = "";
     private var ratingPrompt = "";
 
+    private var currentPracticeScenario = "";
 
     private lateinit var ttsInterface: TTSInterfaceClass
 
@@ -40,6 +43,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
     //views
     private lateinit var outputTV: TextView
     private lateinit var micIB: ImageButton
+    private lateinit var generatePromptB: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,31 +66,47 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         outputTV =  requireView().findViewById(R.id.speech_2_text_out)
         micIB = requireView().findViewById(R.id.mic_button)
 
+        generatePromptB = requireView().findViewById(R.id.new_practice_prompt)
+
+        outputTV.movementMethod = ScrollingMovementMethod()
+
         // call speech to text when button clicked
         micIB.setOnClickListener {
             callSTT()
         }
+        // Disable the mic button if there currently isn't a scenario.
+        checkIfResponseButtonShouldBeEnabled()
 
+        generatePromptB.setOnClickListener{
+            generatePracticePrompt()
+        }
         //set up text to speech
         ttsInterface = TTSInterfaceClass(requireContext())
 
         //load settings
         val settings = SettingWrapper(requireActivity())
 
-        scenario_tokens = settings.get("Pra_Scenario_LLM_Output_Token_Count").toInt()
-        rating_tokens = settings.get("Pra_Rating_LLM_Output_Token_Count").toInt()
         scenarioPrompt = settings.get("Pra_Scenario_LLM_Prompt")
-        ratingPrompt = settings.get("Pra_Rating_LLM_Prompt")
+        scenarioTokens = settings.get("Pra_Scenario_LLM_Output_Token_Count").toInt()
 
+        ratingPrompt = settings.get("Pra_Rating_LLM_Prompt")
+        ratingTokens = settings.get("Pra_Rating_LLM_Output_Token_Count").toInt()
     }
 
     //runs when speech to text returns result
     override fun onMicResult(input: String){
         //run in thread so we don't block main
         thread(start = true) {
+            val combinedInput = ratingPrompt +
+                                "\nOrignal Statment:\"" + currentPracticeScenario +"\"" +
+                                "\nResponse:\"" + input +"\""
 
             // Run the OpenAI request in a subroutine.
-            val outputText = makeChatGPTRequest(input,rating_tokens)
+            val outputText = makeChatGPTRequest(combinedInput, ratingTokens)
+
+            // Clear the current scenario.
+            currentPracticeScenario = ""
+            checkIfResponseButtonShouldBeEnabled()
 
             // display output text on screen
             requireActivity().runOnUiThread(Runnable {
@@ -97,6 +117,33 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
             ttsInterface.speakOut(outputText)
 
 
+        }
+    }
+
+    // Callback for the new scenario prompt button.
+    fun generatePracticePrompt(){
+        // Run the OpenAI request in a subroutine.
+        currentPracticeScenario = makeChatGPTRequest(scenarioPrompt, scenarioTokens)
+
+        // display output text on screen
+        requireActivity().runOnUiThread(Runnable {
+            outputTV.text = (currentPracticeScenario)
+        })
+
+        // Re-enable the mic button if there currently isn't a scenario.
+        checkIfResponseButtonShouldBeEnabled()
+
+        //text to speech
+        ttsInterface.speakOut(currentPracticeScenario)
+    }
+
+    // Enables or disables the mic button.
+    fun checkIfResponseButtonShouldBeEnabled(){
+        micIB.isEnabled = currentPracticeScenario.isNotEmpty()
+        if(micIB.isEnabled) {
+            micIB.visibility = View.VISIBLE
+        } else {
+            micIB.visibility = View.INVISIBLE
         }
     }
 

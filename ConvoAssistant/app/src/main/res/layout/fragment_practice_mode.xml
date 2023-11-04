@@ -6,32 +6,52 @@
     android:layout_height="match_parent"
     tools:context=".ui.practice_mode.PracticeModeFragment">
 
-    <ImageButton
-        android:id="@+id/mic_button"
-        android:layout_width="197dp"
-        android:layout_height="186dp"
-        android:layout_marginStart="107dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="107dp"
-        android:background="#00FFFFFF"
-        android:scaleType="fitCenter"
-        android:src="@drawable/baseline_mic_24"
-        android:tint="#787878"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/speech_2_text_out"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="17dp"
-        android:layout_marginEnd="50dp"
-        android:text="Text output will appear here"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mic_button" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="25pt"
+        >
+
+        <TextView
+            android:id="@+id/speech_2_text_out"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="50dp"
+            android:scrollbars="vertical"
+            android:text="Text output will appear here"
+            android:textAlignment="center"
+            android:layout_weight="10"
+            />
+
+        <Button
+            android:id="@+id/new_practice_prompt"
+            android:layout_width="259dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:text="New Practice Prompt"
+            android:textAlignment="center"
+            />
+
+        <ImageButton
+            android:id="@+id/mic_button"
+            android:layout_width="197dp"
+            android:layout_height="200dp"
+            android:layout_marginStart="107dp"
+            android:layout_marginEnd="107dp"
+            android:background="#00FFFFFF"
+            android:enabled="false"
+            android:scaleType="fitCenter"
+            android:src="@drawable/baseline_mic_24"
+            app:tint="#787878"
+
+            />
+
+    </LinearLayout >
 
 </androidx.constraintlayout.widget.ConstraintLayout>
