@@ -14,7 +14,6 @@ import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentPracticeModeBinding
 import com.example.convoassistant.makeChatGPTRequest
-import com.example.convoassistant.ui.practice_mode.PracticeModeViewModel
 import kotlin.concurrent.thread
 import android.text.method.ScrollingMovementMethod
 
@@ -42,7 +41,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
     //views
     private lateinit var outputTV: TextView
-    private lateinit var micIB: ImageButton
+    private lateinit var micIB: Button
     private lateinit var generatePromptB: Button
 
     override fun onCreateView(
@@ -64,7 +63,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
         // initialize views
         outputTV =  requireView().findViewById(R.id.speech_2_text_out)
-        micIB = requireView().findViewById(R.id.mic_button)
+        micIB = requireView().findViewById(R.id.rate_reflection_button)
 
         generatePromptB = requireView().findViewById(R.id.new_practice_prompt)
 
