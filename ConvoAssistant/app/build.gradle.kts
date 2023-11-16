@@ -7,9 +7,14 @@ android {
     namespace = "com.example.convoassistant"
     compileSdk = 34
 
+    packaging {
+        resources.excludes.add("META-INF/INDEX.LIST")
+        resources.excludes.add("META-INF/DEPENDENCIES")
+    }
+
     defaultConfig {
         applicationId = "com.example.convoassistant"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -59,4 +64,9 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("com.google.code.gson:gson:2.8.5")
 
+    // Google Speech SDK.
+    implementation("com.google.cloud:google-cloud-speech:1.29.1")
+    implementation("com.google.auth:google-auth-library-oauth2-http:0.26.0")
+    implementation("io.grpc:grpc-okhttp:1.38.1")
+    implementation("io.grpc:grpc-stub:1.38.1")
 }

@@ -1,14 +1,16 @@
 package com.example.convoassistant.ui.rta
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import android.widget.Button
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.convoassistant.GoogleSpeechToTextInterface
 import com.example.convoassistant.R
-import com.example.convoassistant.STTFragment
 import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
@@ -18,22 +20,21 @@ import kotlin.concurrent.thread
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
 
-class RTAFragment : STTFragment(){ // Fragment() { //todo put back to fragment once we do diarization
+class RTAFragment: Fragment(){ // () {
 
     private var _binding: FragmentRtaBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
-    
-    private lateinit var ttsInterface: TTSInterfaceClass
+    private lateinit var googleAPI: GoogleSpeechToTextInterface;
+    private lateinit var ttsInterface: TTSInterfaceClass;
     private var max_tokens = 50;
     private var pre_prompt = "";
 
     //views
-    private lateinit var outputTV: TextView
-    private lateinit var micIB: ImageButton
+    private lateinit var outputTV: TextView;
+    private lateinit var recordingB: Button;
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,53 +51,111 @@ class RTAFragment : STTFragment(){ // Fragment() { //todo put back to fragment o
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(view, savedInstanceState);
 
-        // initialize views
-        outputTV =  requireView().findViewById(R.id.speech_2_text_out)
-        micIB = requireView().findViewById(R.id.mic_button)
-
-        // call speech to text when button clicked
-        micIB.setOnClickListener {
-            callSTT()
-        }
+        // Set up google interface.
+        googleAPI = GoogleSpeechToTextInterface(requireContext());
 
         //set up text to speech
-        ttsInterface = TTSInterfaceClass(requireContext())
+        ttsInterface = TTSInterfaceClass(requireContext());
 
         //load settings
-        val settings = SettingWrapper(requireActivity())
-        max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt()
-        pre_prompt = settings.get("RTA_LLM_Prompt")
+        val settings = SettingWrapper(requireActivity());
+        max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt();
+        pre_prompt = settings.get("RTA_LLM_Prompt");
 
+        // initialize views
+        outputTV =  requireView().findViewById(R.id.speech_1_text_out);
+        recordingB = requireView().findViewById(R.id.toggle_recording);
+
+        // call speech to text when button clicked
+        recordingB.setOnClickListener {
+            recordingButtonCallback();
+        }
     }
 
-    //runs when speech to text returns result
-    override fun onMicResult(input: String){
+    fun recordingButtonCallback(){
         //run in thread so we don't block main
         thread(start = true) {
 
-            // Run the OpenAI request in a subroutine.
-            val outputText = makeChatGPTRequest(pre_prompt+input,max_tokens)
+            // Handle Starting the recording.
+            if(!googleAPI.recording){
+                // Run the following on the UI thread safely.
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "Recording ...";
+                        // Change button text.
+                        recordingB.text = "Stop Recording"
+                    });
+                }
 
-            /** check if activity still exist */
-            if (getActivity() != null) {
-                // display output text on screen
-                requireActivity().runOnUiThread(Runnable {
-                    outputTV.text = (outputText)
-                })
+                googleAPI.startRecording();
 
-                //text to speech
-                ttsInterface.speakOut(outputText)
+            // Handle stopping the recording.
+            } else{
+                googleAPI.stopRecording();
+
+                // Run the following on the UI thread safely.
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "Recording stopped. Processing input...";
+                        // Change button text.
+                        recordingB.text = "Start Recording"
+                    });
+                }
+
+                googleAPI.processRecording();
+
+                // SST Processing failed.
+                if(googleAPI.outputData.recongizedText == ""){
+                    // Run the following on the UI thread safely.
+                    if (getActivity() != null) {
+                        requireActivity().runOnUiThread(Runnable {
+                            // Display output text on screen.
+                            outputTV.text = "Sorry. We could not hear you!";
+                        });
+                    }
+                    return@thread;
+                }
+
+                // Run the following on the UI thread safely.
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "Speech processed. Generating reflection...";
+                    });
+                }
+
+                val gptPrompt =
+                    pre_prompt + " " +
+                            googleAPI.outputData.recongizedText +
+                            " Generate the response using user " +
+                            googleAPI.outputData.lastSpeaker +
+                            " words.";
+
+                // Run the OpenAI request in a subroutine.
+                val outputText = makeChatGPTRequest(gptPrompt, max_tokens);
+
+                // Run the following on the UI thread safely.
+                if (getActivity() != null) {
+                    // display output text on screen
+                    requireActivity().runOnUiThread(Runnable {
+                        outputTV.text = outputText;
+                    })
+
+                    //text to speech
+                    ttsInterface.speakOut(outputText)
+                }
             }
-
-
         }
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
-        ttsInterface.onDestroy()
-        _binding = null
+        super.onDestroyView();
+        ttsInterface.onDestroy();
+        googleAPI.onDestroy();
+        _binding = null;
     }
 }
