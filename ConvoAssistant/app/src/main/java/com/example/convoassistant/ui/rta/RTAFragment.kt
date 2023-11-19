@@ -90,6 +90,7 @@ class RTAFragment: Fragment(){ // () {
                     });
                 }
 
+                //TODO, add permission check
                 googleAPI.startRecording();
 
             // Handle stopping the recording.
