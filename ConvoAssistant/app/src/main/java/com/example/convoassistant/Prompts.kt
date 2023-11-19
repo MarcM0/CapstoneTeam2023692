@@ -5,7 +5,7 @@ const val scenarioPrompt = """I am practicing reflections. Pretend you are a fri
 
 //The following prompts are based off work by Jonathan Rose et al. The ones starting with "Original" are those that are direct copies, while the ones that start with "New" have been tuned by the team
 
-const val NewReflectPrompt =  """The following is an interaction between you and a person who is confiding in you. Give a very short reflection. The reflection must be a plausible guess or assumption about the other person's underlying emotions, values, or thoughts. The reflection must be a statement and not a question. Don't always use "it seems like" or "it sounds like" or "you" or "important to you". Reflect on the last statement. """;
+const val NewReflectPrompt =  """The following is an interaction between you and a person who is confiding in you. Give a very short reflection. The reflection must be a plausible guess or assumption about the other person's underlying emotions, values, or thoughts. The reflection must be a statement and not a question. Don't always use "it seems like" or "it sounds like" or "you" or "important to you". Reflect on the last statement. Don't refer to the other person as "they", refer to them as "you". """;
 
 const val NewRatePrompt = """ Evaluate the following reflection. Reflections are responses that show good listening.
 Good reflections may or may not:
