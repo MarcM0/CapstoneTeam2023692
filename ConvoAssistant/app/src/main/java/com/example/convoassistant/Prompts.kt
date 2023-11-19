@@ -1,7 +1,7 @@
 package com.example.convoassistant
 
 
-const val scenarioPrompt = """Pretend that you are my friend. Give me a short statement about a problem you have."""
+const val scenarioPrompt = """Pretend that you are my friend. Give me a SHORT statement about a problem you have."""
 
 //The following prompts are based off work by Jonathan Rose et al. The ones starting with "Original" are those that are direct copies, while the ones that start with "New" have been tuned by the team
 
@@ -15,10 +15,12 @@ Good reflections may or may not:
 - Reasonable assumptions about emotions, values, and thoughts are encouraged, even if they aren't in the original statement. These assumptions don’t need to be correct, just plausible and not unkind. 
 Good reflections must be:
 - Statements not questions 
-- non-confrontational, not shaming nor criticizing nor antagonizing nor commanding nor imperative
+- non-confrontational, not shaming nor imperative nor criticizing nor antagonizing nor commanding 
 - Relevant to conversation
-Given this, output “True” if the reflection is good, or “False” and a very short explanation if it is not good.
+- Not a suggestion for a solution
+Given this, give a very short statement about whether reflection is good or not, and why.
  """;
+
 
 const val OriginalReflectPrompt =  """The following is an interaction between you and a user. You are a therapist and the user is someone having smoking issues. Give a SHORT reflection to the user's response. The reflection must be a plausible guess or assumption about the user's underlying emotions, values, or chain of thought. The reflection must be very short. The reflection must be a statement and not a question. Don't always use "it seems like" or "it sounds like" or "you" at the beginning. Don't always use the phrase "important to you" or "important for you". """;
 

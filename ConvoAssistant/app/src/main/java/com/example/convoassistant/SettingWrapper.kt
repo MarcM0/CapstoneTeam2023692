@@ -18,7 +18,7 @@ class SettingWrapper(activity: Activity) {
                                 "Pra_Scenario_LLM_Prompt" to  scenarioPrompt,
                                 "Pra_Rating_LLM_Prompt" to  NewRatePrompt,
                                 "Pra_Scenario_LLM_Output_Token_Count" to  "50",
-                                "Pra_Rating_LLM_Output_Token_Count" to  "50",
+                                "Pra_Rating_LLM_Output_Token_Count" to  "100",
                                 )
 
     //gets value associated with key
