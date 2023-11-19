@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
+import android.util.Log
 import com.google.api.gax.core.CredentialsProvider
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
@@ -94,7 +95,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
 
         debugFile = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-                .toString(), "/recordingTranscript.txt"
+                .toString(), "/recordingTranscript.txt" //todo
         );
     }
 
@@ -110,9 +111,14 @@ class GoogleSpeechToTextInterface(private val context: Context) {
     fun processRecording(){
         // Read in the file in a format google can read.
         val recordingInputStream = FileInputStream(recordingFile);
+        if(recordingInputStream.available() <= 0){
+            return;
+        }
         recognitionInput = RecognitionAudio.newBuilder().setContent(
             ByteString.copyFrom(recordingInputStream.readBytes())
         ).build();
+
+
 
         // Perform STT and digitization.
         val speechToTextClientResponse = googleSpeechClient.recognize(recognitionConfig, recognitionInput);
@@ -129,17 +135,19 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         // Split the dialogue up based on speakers.
         var currentSpeaker = -1;
         var speechSnippet = "";
+        val newSnippet = "\n\""
         for(word in wordsSpoken) {
             // Speaker change detected.
             if(word.speakerTag != currentSpeaker){
                 // End the previous speaker and add to the output.
                 if(speechSnippet != ""){
-                    outputData.recongizedText = speechSnippet + '"';
+                    outputData.recongizedText += speechSnippet + '"';
                 }
 
                 // Set up the new speaker.
                 currentSpeaker = word.speakerTag
-                speechSnippet = "User " + currentSpeaker +  ":\"";
+//                speechSnippet = "User " + currentSpeaker +  ":\"";
+                speechSnippet = newSnippet
             }
 
             // Build the snippet.
@@ -147,7 +155,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         }
 
         // End the transcription.
-        outputData.recongizedText = speechSnippet + '"';
+        outputData.recongizedText += speechSnippet + '"' + newSnippet;
         outputData.lastSpeaker = currentSpeaker;
 
         // Write the transcript to a file for debugging.

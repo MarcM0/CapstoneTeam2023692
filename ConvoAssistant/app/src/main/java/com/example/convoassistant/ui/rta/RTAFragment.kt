@@ -78,77 +78,87 @@ class RTAFragment: Fragment(){ // () {
         //run in thread so we don't block main
         thread(start = true) {
 
-            // Handle Starting the recording.
-            if(!googleAPI.recording){
-                // Run the following on the UI thread safely.
-                if (getActivity() != null) {
-                    requireActivity().runOnUiThread(Runnable {
-                        // Display output text on screen.
-                        outputTV.text = "Recording ...";
-                        // Change button text.
-                        recordingB.text = "Stop Recording"
-                    });
-                }
-
-                //TODO, add permission check  (also test ask every time case)
-                googleAPI.startRecording();
-
-            // Handle stopping the recording.
-            } else{
-                googleAPI.stopRecording();
-
-                // Run the following on the UI thread safely.
-                if (getActivity() != null) {
-                    requireActivity().runOnUiThread(Runnable {
-                        // Display output text on screen.
-                        outputTV.text = "Recording stopped. Processing input...";
-                        // Change button text.
-                        recordingB.text = "Start Recording"
-                    });
-                }
-
-                googleAPI.processRecording();
-
-                // SST Processing failed.
-                if(googleAPI.outputData.recongizedText == ""){
+            try {
+                // Handle Starting the recording.
+                if (!googleAPI.recording) {
                     // Run the following on the UI thread safely.
                     if (getActivity() != null) {
                         requireActivity().runOnUiThread(Runnable {
                             // Display output text on screen.
-                            outputTV.text = "Sorry. We could not hear you!";
+                            outputTV.text = "Recording ...";
+                            // Change button text.
+                            recordingB.text = "Stop Recording"
                         });
                     }
-                    return@thread;
-                }
 
+                    //TODO, add permission check  (also test ask every time case)
+                    googleAPI.startRecording();
+
+                // Handle stopping the recording.
+            } else{
+            googleAPI.stopRecording();
+
+            // Run the following on the UI thread safely.
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(Runnable {
+                    // Display output text on screen.
+                    outputTV.text = "Recording stopped. Processing input...";
+                    // Change button text.
+                    recordingB.text = "Start Recording"
+                });
+            }
+
+            googleAPI.processRecording();
+
+            // SST Processing failed.
+            if (googleAPI.outputData.recongizedText == "") {
                 // Run the following on the UI thread safely.
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(Runnable {
                         // Display output text on screen.
-                        outputTV.text = "Speech processed. Generating reflection...";
+                        outputTV.text = "Sorry. We could not hear you!";
                     });
                 }
+                return@thread;
+            }
 
-                val gptPrompt =
-                    pre_prompt + " " +
-                            googleAPI.outputData.recongizedText +
-                            " Generate the response using user " +
-                            googleAPI.outputData.lastSpeaker +
-                            " words.";
+            // Run the following on the UI thread safely.
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(Runnable {
+                    // Display output text on screen.
+                    outputTV.text = "Speech processed. Generating reflection...";
+                });
+            }
 
-                // Run the OpenAI request in a subroutine.
-                val outputText = makeChatGPTRequest(gptPrompt, max_tokens);
+            val gptPrompt =
+                pre_prompt + " " +
+                        googleAPI.outputData.recongizedText
+//                +
+//                            " Generate the response using user " +
+//                            googleAPI.outputData.lastSpeaker +
+//                            " words.";
 
-                // Run the following on the UI thread safely.
-                if (getActivity() != null) {
-                    // display output text on screen
-                    requireActivity().runOnUiThread(Runnable {
-                        outputTV.text = outputText;
-                    })
+            // Run the OpenAI request in a subroutine.
+            val outputText = makeChatGPTRequest(gptPrompt, max_tokens);
 
-                    //text to speech
-                    ttsInterface.speakOut(outputText)
-                }
+            // Run the following on the UI thread safely.
+            if (getActivity() != null) {
+                // display output text on screen
+                requireActivity().runOnUiThread(Runnable {
+                    outputTV.text = outputText;
+                })
+
+                //text to speech
+                ttsInterface.speakOut(outputText)
+            }
+        }
+
+        }catch(e: Exception) {
+                requireActivity().runOnUiThread(Runnable {
+                    recordingB.text = "Start Recording"
+                    outputTV.text = "Error occured, maybe you need to enable permissions\n INFO: "+e.message
+                })
+
             }
         }
     }
