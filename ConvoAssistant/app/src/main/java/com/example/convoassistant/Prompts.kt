@@ -1,7 +1,7 @@
 package com.example.convoassistant
 
 
-const val scenarioPrompt = """I am practicing reflections. Pretend you are a friend that is pouring your heart out to me. Give me a statement that I can reflect on."""
+const val scenarioPrompt = """You are my friend. Give me a short statement about a problem you have."""
 
 //The following prompts are based off work by Jonathan Rose et al. The ones starting with "Original" are those that are direct copies, while the ones that start with "New" have been tuned by the team
 
