@@ -182,6 +182,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         outputData.recongizedText += speechSnippet + '"';
         outputData.lastSpeaker = currentSpeaker;
 
+        Log.i("undiarizedText", fullTranscript )
         Log.i("diarizedText", outputData.recongizedText )
 
         // Write the transcript to a file for debugging.
