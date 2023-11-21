@@ -44,6 +44,7 @@ class OutputStruct() {
 class GoogleSpeechToTextInterface(private val context: Context) {
     private val sampleRate = 48000;
     private val audioChannels = 2;
+    private val bitDepth = 16;
 
     private lateinit var audioRecord: MediaRecorder;
 
@@ -84,7 +85,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
             .setSampleRateHertz(sampleRate)
             .setLanguageCode("en-US")
             .setDiarizationConfig(diarizationConfig)
-            .setModel("phone_call")
+//            .setModel("phone_call")
             .build();
 
         // Get the storage file to be used.
@@ -158,6 +159,8 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         outputData.recongizedText += speechSnippet + '"' + newSnippet;
         outputData.lastSpeaker = currentSpeaker;
 
+        //Log.i("info", outputData.recongizedText )
+
         // Write the transcript to a file for debugging.
         val outputStreamWriter =
             OutputStreamWriter(debugFile.outputStream());
@@ -179,6 +182,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
 
         // Set up the recorder properties.
         audioRecord.setAudioSamplingRate(sampleRate);
+        audioRecord.setAudioEncodingBitRate(sampleRate * bitDepth);
         audioRecord.setAudioChannels(audioChannels);
         audioRecord.setAudioSource(MediaRecorder.AudioSource.MIC);
         audioRecord.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
