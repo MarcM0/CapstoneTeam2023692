@@ -1,6 +1,5 @@
 package com.example.convoassistant
 
-import android.R.attr.data
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
@@ -42,7 +41,7 @@ class OutputStruct() {
 }
 //
 class GoogleSpeechToTextInterface(private val context: Context) {
-    private val sampleRate = 48000;
+    private val sampleRate = 16000;
     private val audioChannels = 2;
     private val bitDepth = 16;
 
@@ -75,8 +74,8 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         // Set up diarziation and STT.
         diarizationConfig = SpeakerDiarizationConfig.newBuilder()
             .setEnableSpeakerDiarization(true)
-            .setMaxSpeakerCount(10)
-            .setMinSpeakerCount(3)
+            .setMaxSpeakerCount(2)
+            .setMinSpeakerCount(2)
             .build();
 
         recognitionConfig = RecognitionConfig.newBuilder()
@@ -127,39 +126,63 @@ class GoogleSpeechToTextInterface(private val context: Context) {
             return;
         }
 
-        // Construct the output of the model.
-        val finalResult = speechToTextClientResponse.resultsList.last();
-        val wordsSpoken = finalResult.alternativesList[0].wordsList;
 
-        outputData.lastSpeaker = wordsSpoken.last().speakerTag;
+        var fullTranscript = "";
+        for(transciptResult in  speechToTextClientResponse.resultsList){
+            fullTranscript += transciptResult.getAlternatives(0).transcript
+        }
+        val transciptWords = fullTranscript.split(" ");
 
+
+        // Fetch the diarization output.
+        val finalResult = speechToTextClientResponse.resultsList.last().alternativesList[0];
         // Split the dialogue up based on speakers.
         var currentSpeaker = -1;
         var speechSnippet = "";
+        var diarizationIndex = 0;
         val newSnippet = "\n\""
-        for(word in wordsSpoken) {
-            // Speaker change detected.
-            if(word.speakerTag != currentSpeaker){
-                // End the previous speaker and add to the output.
-                if(speechSnippet != ""){
-                    outputData.recongizedText += speechSnippet + '"';
-                }
-
-                // Set up the new speaker.
-                currentSpeaker = word.speakerTag
-//                speechSnippet = "User " + currentSpeaker +  ":\"";
-                speechSnippet = newSnippet
+        var pasteTheRest = false;
+        for(word in transciptWords){
+            // Panic mode -> paste the rest of the transcript under a new user.
+            if(pasteTheRest){
+                speechSnippet += word + " ";
+                continue;
             }
 
-            // Build the snippet.
-            speechSnippet += word.word + " ";
+            // Check to see if the diarized word matches the transcript.
+            var currentDiarizationWord = finalResult.getWords(diarizationIndex);
+            if(word == currentDiarizationWord.word){
+                // Speaker change detected.
+                if( currentDiarizationWord.speakerTag != currentSpeaker){
+                    // End the previous speaker and add to the output.
+                    if(speechSnippet != ""){
+                        outputData.recongizedText += speechSnippet + '"';
+                    }
+
+                    // Set up the new speaker.
+                    currentSpeaker = currentDiarizationWord.speakerTag;
+                    speechSnippet = newSnippet;
+                }
+
+                // Build the snippet.
+                speechSnippet += currentDiarizationWord.word + " ";
+                diarizationIndex++;
+            } else{
+                // Mismatched word -> enter panic mode.
+                pasteTheRest = true;
+
+                // Set up the new speaker for the panic text.
+                outputData.recongizedText += speechSnippet + '"';
+                speechSnippet = newSnippet;
+                currentSpeaker++;
+            }
         }
 
         // End the transcription.
-        outputData.recongizedText += speechSnippet + '"' + newSnippet;
+        outputData.recongizedText += speechSnippet + '"';
         outputData.lastSpeaker = currentSpeaker;
 
-        //Log.i("info", outputData.recongizedText )
+        Log.i("diarizedText", outputData.recongizedText )
 
         // Write the transcript to a file for debugging.
         val outputStreamWriter =
