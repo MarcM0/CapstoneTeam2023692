@@ -91,7 +91,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         // Get the storage file to be used.
         recordingFile = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-                .toString(), "/assistantCacheRecording.wav"
+                .toString(), "/assistantCacheRecording.m4a"
         );
 
         debugFile = File(
@@ -185,8 +185,8 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         audioRecord.setAudioEncodingBitRate(sampleRate * bitDepth);
         audioRecord.setAudioChannels(audioChannels);
         audioRecord.setAudioSource(MediaRecorder.AudioSource.MIC);
-        audioRecord.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        audioRecord.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        audioRecord.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        audioRecord.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         audioRecord.setOutputFile(recordingFile);
 
         // Begin Recording
