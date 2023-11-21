@@ -2,6 +2,7 @@ package com.example.convoassistant.ui.rta
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,8 @@ import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 // Real time assistant mode interface
@@ -31,6 +34,7 @@ class RTAFragment: Fragment(){ // () {
     private lateinit var ttsInterface: TTSInterfaceClass;
     private var max_tokens = 50;
     private var pre_prompt = "";
+    var inPipeline = false;
 
     //views
     private lateinit var outputTV: TextView;
@@ -81,6 +85,20 @@ class RTAFragment: Fragment(){ // () {
             try {
                 // Handle Starting the recording.
                 if (!googleAPI.recording) {
+                    if(inPipeline){
+                        Log.i("Info","Ignored request since request already processing")
+                        return@thread; //dont start 2 at once
+                    }
+                    inPipeline =true;
+
+                    //auto stop in 50 sec
+                    Executors.newSingleThreadScheduledExecutor().schedule({
+                        if(googleAPI.recording){
+                            Log.i("Info","Auto stopping recording after 50 sec");
+                            recordingButtonCallback();
+                        }
+                    }, 50, TimeUnit.SECONDS)
+
                     // Run the following on the UI thread safely.
                     if (getActivity() != null) {
                         requireActivity().runOnUiThread(Runnable {
@@ -119,6 +137,7 @@ class RTAFragment: Fragment(){ // () {
                         outputTV.text = "Sorry. We could not hear you!";
                     });
                 }
+                inPipeline = false;
                 return@thread;
             }
 
@@ -151,9 +170,11 @@ class RTAFragment: Fragment(){ // () {
                 //text to speech
                 ttsInterface.speakOut(outputText)
             }
+            inPipeline = false;
         }
 
         }catch(e: Exception) {
+                inPipeline = false;
                 requireActivity().runOnUiThread(Runnable {
                     recordingB.text = "Start Recording"
                     outputTV.text = "Error occured, maybe you need to enable permissions\n INFO: "+e.message
