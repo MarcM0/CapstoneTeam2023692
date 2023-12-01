@@ -1,10 +1,14 @@
 package com.example.convoassistant
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.api.gax.core.CredentialsProvider
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
@@ -192,9 +196,17 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         outputStreamWriter.close();
     }
 
-    fun startRecording() {
+    fun startRecording(CurrActivity: Activity) {
         if (recording) return;
         outputData.clear();
+
+        //request permissions
+        if (ContextCompat.checkSelfPermission(CurrActivity, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CurrActivity, arrayOf(android.Manifest.permission.RECORD_AUDIO), 123);
+        }
+        if (ContextCompat.checkSelfPermission(CurrActivity, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CurrActivity, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 124);
+        }
 
         // Set up the recorder. Requires different constructors based on the SDK version.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
