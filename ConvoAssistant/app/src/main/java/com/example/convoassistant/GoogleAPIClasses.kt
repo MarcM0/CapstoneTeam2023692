@@ -201,6 +201,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         outputData.clear();
 
         //request permissions
+        //todo, this creates the popup, but does not even wait for response, so guaranteed to throw an error if permission bad
         if (ContextCompat.checkSelfPermission(CurrActivity, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(CurrActivity, arrayOf(android.Manifest.permission.RECORD_AUDIO), 123);
         }
