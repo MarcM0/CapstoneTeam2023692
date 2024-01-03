@@ -40,7 +40,7 @@ class OpenAIResponse(
     val choices: List<OpenAIChoices>
 ){}
 
-fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, ) : String
+fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, temperature: Double = 1.0) : String
 {
     lateinit var output: String
     val cleanPrompt = prompt.replace("\"", "'").replace("\n", " ")
@@ -59,7 +59,7 @@ fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, ) : String
                     """{
                                 "model": "gpt-3.5-turbo",
                                 "messages": [{"role": "user", "content": "$cleanPrompt"}],
-                                "temperature": 0.7,
+                                "temperature": $temperature,
                                 "max_tokens": $max_tokens
                             }"""
                 )

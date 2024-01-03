@@ -157,7 +157,7 @@ class RTAFragment: Fragment(){ // () {
 //                            " words.";
 
             // Run the OpenAI request in a subroutine.
-            val outputText = makeChatGPTRequest(gptPrompt, max_tokens);
+            val outputText = makeChatGPTRequest(gptPrompt, max_tokens, temperature = 1.1);
 
             // Run the following on the UI thread safely.
             if (getActivity() != null) {
@@ -173,11 +173,17 @@ class RTAFragment: Fragment(){ // () {
         }
 
         }catch(e: Exception) {
+            Log.e("Error",e.toString())
+            try {
                 inPipeline = false;
                 requireActivity().runOnUiThread(Runnable {
                     recordingB.text = "Start Recording"
-                    outputTV.text = "Error occured, maybe you need to enable permissions\n INFO: "+e.message
+                    outputTV.text =
+                        "Error occured, maybe you need to enable permissions\n INFO: " + e.message
                 })
+            }catch (e: Exception){
+                Log.e("Error",e.toString())
+            }
 
             }
         }

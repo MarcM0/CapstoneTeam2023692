@@ -17,7 +17,7 @@ class SettingWrapper(activity: Activity) {
                                 "RTA_LLM_Output_Token_Count" to "50",
                                 "Pra_Scenario_LLM_Prompt" to  scenarioPrompt,
                                 "Pra_Rating_LLM_Prompt" to  NewRatePrompt,
-                                "Pra_Scenario_LLM_Output_Token_Count" to  "50",
+                                "Pra_Scenario_LLM_Output_Token_Count" to  "70",
                                 "Pra_Rating_LLM_Output_Token_Count" to  "100",
                                 )
 

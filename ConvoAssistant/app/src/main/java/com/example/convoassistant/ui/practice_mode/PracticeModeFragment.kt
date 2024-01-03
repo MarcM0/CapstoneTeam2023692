@@ -16,6 +16,7 @@ import com.example.convoassistant.databinding.FragmentPracticeModeBinding
 import com.example.convoassistant.makeChatGPTRequest
 import kotlin.concurrent.thread
 import android.text.method.ScrollingMovementMethod
+import kotlin.random.Random
 
 // Practice mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
@@ -101,7 +102,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
                                 "\nResponse:\"" + input +"\""
 
             // Run the OpenAI request in a subroutine.
-            val outputText = makeChatGPTRequest(combinedInput, ratingTokens)
+            val outputText = makeChatGPTRequest(combinedInput, ratingTokens, temperature = 0.1)
 
             // Clear the current scenario.
             currentPracticeScenario = ""
@@ -128,6 +129,12 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         // Display a loading message.
         outputTV.text = "Generating Practice Scenario..."
 
+        // 50/50 chance of remembering last scenario. (Helps with repetitiveness)
+        var scenarioPromptNew = currentPracticeScenario+"\n"+scenarioPrompt;
+        if(Random.nextBoolean()){
+            scenarioPromptNew = scenarioPrompt
+        }
+
         // Clear the existing scenario.
         currentPracticeScenario = ""
         checkIfResponseButtonShouldBeEnabled()
@@ -138,7 +145,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         // run in thread so we don't block main
         thread(start = true) {
             // Run the OpenAI request in a subroutine.
-            currentPracticeScenario = makeChatGPTRequest(scenarioPrompt, scenarioTokens)
+            currentPracticeScenario = makeChatGPTRequest(scenarioPromptNew, scenarioTokens, temperature = 1.5)
 
             /** check if activity still exist */
             if (getActivity() != null) {
