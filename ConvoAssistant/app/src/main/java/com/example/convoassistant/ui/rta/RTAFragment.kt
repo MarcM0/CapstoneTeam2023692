@@ -17,6 +17,7 @@ import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
@@ -26,6 +27,7 @@ import kotlin.concurrent.thread
 class RTAFragment: Fragment(){ // () {
 
     private var _binding: FragmentRtaBinding? = null
+    private lateinit  var autoStopRequest: ScheduledFuture<*>
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -78,9 +80,19 @@ class RTAFragment: Fragment(){ // () {
         }
     }
 
-    fun recordingButtonCallback(){
+    fun recordingButtonCallback(isAutoStop: Boolean = false){
         //run in thread so we don't block main
         thread(start = true) {
+
+            //cancel autostop if necessary
+            if(!isAutoStop){
+                try {
+                    autoStopRequest.cancel(false) 
+                }catch (e: Exception) {
+                    Log.e("Error", e.toString())
+                }
+            }
+
 
             try {
                 // Handle Starting the recording.
@@ -92,10 +104,10 @@ class RTAFragment: Fragment(){ // () {
                     inPipeline =true;
 
                     //auto stop in 50 sec
-                    Executors.newSingleThreadScheduledExecutor().schedule({
+                    autoStopRequest = Executors.newSingleThreadScheduledExecutor().schedule({
                         if(googleAPI.recording){
                             Log.i("Info","Auto stopping recording after 50 sec");
-                            recordingButtonCallback();
+                            recordingButtonCallback(true);
                         }
                     }, 50, TimeUnit.SECONDS)
 
