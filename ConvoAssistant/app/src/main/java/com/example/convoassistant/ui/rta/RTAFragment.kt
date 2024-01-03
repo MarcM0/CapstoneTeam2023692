@@ -24,7 +24,7 @@ import kotlin.concurrent.thread
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
 
-class RTAFragment: Fragment(){ // () {
+class RTAFragment: Fragment(){ 
 
     private var _binding: FragmentRtaBinding? = null
     private lateinit  var autoStopRequest: ScheduledFuture<*>
@@ -87,7 +87,7 @@ class RTAFragment: Fragment(){ // () {
             //cancel autostop if necessary
             if(!isAutoStop){
                 try {
-                    autoStopRequest.cancel(false) 
+                    autoStopRequest.cancel(false)
                 }catch (e: Exception) {
                     Log.e("Error", e.toString())
                 }
