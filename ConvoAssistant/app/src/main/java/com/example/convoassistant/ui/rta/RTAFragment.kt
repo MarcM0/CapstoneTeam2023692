@@ -1,7 +1,7 @@
 package com.example.convoassistant.ui.rta
 
-
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +16,8 @@ import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
-import java.util.concurrent.Executors
+import kotlinx.coroutines.*
 import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 // Real time assistant mode interface
@@ -32,15 +31,20 @@ class RTAFragment: Fragment(){
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    private lateinit var googleAPI: GoogleSpeechToTextInterface;
+    lateinit private var googleAPI: GoogleSpeechToTextInterface;
     private lateinit var ttsInterface: TTSInterfaceClass;
     private var max_tokens = 50;
     private var pre_prompt = "";
-    var inPipeline = false;
 
     //views
     private lateinit var outputTV: TextView;
     private lateinit var recordingB: Button;
+
+    // App settings.
+    private lateinit var settings: SettingWrapper;
+
+    // Recording managing thread.
+    private var recordingBackgroundJob: Job? = null;
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,7 +70,7 @@ class RTAFragment: Fragment(){
         ttsInterface = TTSInterfaceClass(requireContext());
 
         //load settings
-        val settings = SettingWrapper(requireActivity());
+        settings = SettingWrapper(requireActivity());
         max_tokens = settings.get("RTA_LLM_Output_Token_Count").toInt();
         pre_prompt = settings.get("RTA_LLM_Prompt");
 
@@ -81,51 +85,58 @@ class RTAFragment: Fragment(){
     }
 
     fun recordingButtonCallback(isAutoStop: Boolean = false){
-        //run in thread so we don't block main
-        thread(start = true) {
-
-            //cancel autostop if necessary
-            if(!isAutoStop){
-                try {
-                    autoStopRequest.cancel(false)
-                }catch (e: Exception) {
-                    Log.e("Error", e.toString())
+        // Handle Starting the recording.
+        if (!googleAPI.recording) {
+            // Run in thread so we don't block main.
+            thread(start = true) { try {
+                // Clean any recording threads.
+                if(recordingBackgroundJob!=null){
+                    recordingBackgroundJob?.cancel();
+                    recordingBackgroundJob = null;
                 }
-            }
 
+                // Run the following on the UI thread safely.
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "Recording ...";
+                        // Change button text.
+                        recordingB.text = "Stop Recording"
+                    });
+                }
 
-            try {
-                // Handle Starting the recording.
-                if (!googleAPI.recording) {
-                    if(inPipeline){
-                        Log.i("Info","Ignored request since request already processing")
-                        return@thread; //dont start 2 at once
-                    }
-                    inPipeline =true;
+                googleAPI.startRecording(this.requireActivity());
 
-                    //auto stop in 50 sec
-                    autoStopRequest = Executors.newSingleThreadScheduledExecutor().schedule({
-                        if(googleAPI.recording){
-                            Log.i("Info","Auto stopping recording after 50 sec");
-                            recordingButtonCallback(true);
-                        }
-                    }, 50, TimeUnit.SECONDS)
+                // Create a thread.
+                recordingBackgroundJob = startRecordingBackgroundThread();
 
-                    // Run the following on the UI thread safely.
-                    if (getActivity() != null) {
-                        requireActivity().runOnUiThread(Runnable {
-                            // Display output text on screen.
-                            outputTV.text = "Recording ...";
-                            // Change button text.
-                            recordingB.text = "Stop Recording"
-                        });
-                    }
+            } catch(e: Exception) {
+                Log.e("Error", e.toString());
+                try {
+                    requireActivity().runOnUiThread(Runnable {
+                        recordingB.text = "Start Recording"
+                        outputTV.text =
+                            "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                    });
+                } catch (e: Exception) {
+                    Log.e("Error", e.toString());
+                }
+            }}
+        } else {
+            stopRecording();
+        }
+    }
 
-                    googleAPI.startRecording(this.requireActivity());
-
-                // Handle stopping the recording.
-            } else{
+    fun stopRecording(){
+        thread(start = true) { try {
+            // Handle ending the recording.
             googleAPI.stopRecording();
+
+            // Clean the external thread.
+            if(recordingBackgroundJob!=null){
+                recordingBackgroundJob?.cancel();
+                recordingBackgroundJob = null;
+            }
 
             // Run the following on the UI thread safely.
             if (getActivity() != null) {
@@ -148,7 +159,6 @@ class RTAFragment: Fragment(){
                         outputTV.text = "Sorry. We could not hear you!";
                     });
                 }
-                inPipeline = false;
                 return@thread;
             }
 
@@ -163,10 +173,9 @@ class RTAFragment: Fragment(){
             val gptPrompt =
                 pre_prompt + " " +
                         googleAPI.outputData.recongizedText
-//                +
-//                            " Generate the response using user " +
-//                            googleAPI.outputData.lastSpeaker +
-//                            " words.";
+            //                            " Generate the response using user " +
+            //                            googleAPI.outputData.lastSpeaker +
+            //                            " words.";
 
             // Run the OpenAI request in a subroutine.
             val outputText = makeChatGPTRequest(gptPrompt, max_tokens, temperature = 1.1);
@@ -176,33 +185,73 @@ class RTAFragment: Fragment(){
                 // display output text on screen
                 requireActivity().runOnUiThread(Runnable {
                     outputTV.text = outputText;
-                })
-
-                //text to speech
-                ttsInterface.speakOut(outputText)
+                });
             }
-            inPipeline = false;
-        }
 
-        }catch(e: Exception) {
-            Log.e("Error",e.toString())
+            // Text to speech.
+            ttsInterface.speakOut(outputText);
+        } catch(e: Exception) {
+            Log.e("Error", e.toString());
             try {
-                inPipeline = false;
                 requireActivity().runOnUiThread(Runnable {
                     recordingB.text = "Start Recording"
                     outputTV.text =
                         "Error occured, maybe you need to enable permissions\n INFO: " + e.message
-                })
-            }catch (e: Exception){
-                Log.e("Error",e.toString())
+                });
+            } catch (e: Exception) {
+                Log.e("Error", e.toString());
             }
+        }}
+    }
 
+    fun startRecordingBackgroundThread(): Job {
+        return CoroutineScope(Dispatchers.Default).launch {
+            val startTime = System.currentTimeMillis();
+            var timeLastSpoke: Long = -1;
+            while (googleAPI.recording) {
+
+                // Timeout after 50 seconds.
+                val currentTime = System.currentTimeMillis();
+                val elapsedTime = currentTime - startTime;
+                if (elapsedTime >= settings.get("RTA_Max_Record_Time_Count").toInt()) {
+                    stopRecording();
+                    break;
+                }
+
+                // Check current mic levels.
+                val currentMicAmp = googleAPI.getMicAmplitude();
+                if(currentMicAmp >= settings.get("RTA_Microphone_Threshold_Count").toInt()){
+                    timeLastSpoke = currentTime;
+                }
+
+                // Timeout after not speaking for a while.
+                if(timeLastSpoke > 0 && (currentTime - timeLastSpoke) >= settings.get("RTA_Max_Time_Without_Speaking_Count").toInt()){
+                    stopRecording();
+                    break;
+                }
+
+                // Display recording time safely on UI thread.
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "Recording...\nMicrophone Level: " + currentMicAmp+
+                                        "\nElpased Recording Time: " +elapsedTime / 1000.0+"s";
+                    });
+                }
+
+                // Wait a couple ms to not overload the CPU.
+                delay(100);
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView();
+        // Clean up recording thread.
+        if(recordingBackgroundJob!=null){
+            recordingBackgroundJob?.cancel();
+            recordingBackgroundJob = null;
+        }
         ttsInterface.onDestroy();
         googleAPI.onDestroy();
         _binding = null;

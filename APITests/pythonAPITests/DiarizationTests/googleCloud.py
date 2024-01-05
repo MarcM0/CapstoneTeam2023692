@@ -6,21 +6,22 @@ client = speech.SpeechClient()
 diarization_config = speech.SpeakerDiarizationConfig(
     enable_speaker_diarization=True,
     min_speaker_count=2,
-    max_speaker_count=10,
+    max_speaker_count=2,
 )
 
 config = speech.RecognitionConfig(
-    encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+    encoding=speech.RecognitionConfig.AudioEncoding.AMR_WB,
+    sample_rate_hertz=48000,
     audio_channel_count=2,
     language_code="en-US",
     diarization_config=diarization_config,
-     use_enhanced=True,
+    use_enhanced=True,
     
-     model="phone_call",
+    model="phone_call",
 )
 
 
-filePath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./input.wav")
+filePath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./myCoolRecording.wav")
 with open(filePath, "rb") as audio_file:
     content = audio_file.read()
 

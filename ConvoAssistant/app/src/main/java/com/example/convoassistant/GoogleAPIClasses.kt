@@ -232,6 +232,16 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         recording = true;
     }
 
+    fun isSpeaking(threshold: Int): Boolean{
+        if (!recording) return false;
+
+        return audioRecord.maxAmplitude >= threshold;
+    }
+    fun getMicAmplitude(): Int{
+        if (!recording) return 0;
+        return audioRecord.maxAmplitude;
+    }
+
     fun onDestroy(){
         if(recording){
             audioRecord.stop();

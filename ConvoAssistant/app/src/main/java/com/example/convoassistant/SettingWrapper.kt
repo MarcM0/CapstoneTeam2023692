@@ -15,6 +15,9 @@ class SettingWrapper(activity: Activity) {
     private val defaultVals = mapOf(
                                 "RTA_LLM_Prompt" to NewReflectPrompt,
                                 "RTA_LLM_Output_Token_Count" to "50",
+                                "RTA_Max_Record_Time_Count" to "45000",
+                                "RTA_Max_Time_Without_Speaking_Count" to "3000",
+                                "RTA_Microphone_Threshold_Count" to "700",
                                 "Pra_Scenario_LLM_Prompt" to  scenarioPrompt,
                                 "Pra_Rating_LLM_Prompt" to  NewRatePrompt,
                                 "Pra_Scenario_LLM_Output_Token_Count" to  "70",

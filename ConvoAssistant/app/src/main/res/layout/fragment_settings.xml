@@ -67,6 +67,57 @@
                 android:textAlignment="textStart" />
 
             <TextView
+                android:id="@+id/maxRecordTimeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Max Record Time (ms)"
+                />
+            <EditText
+                android:id="@+id/maxRecordTimeBox"
+                android:layout_width="75dp"
+                android:layout_height="39dp"
+                android:elegantTextHeight="false"
+                android:inputType="number"
+                android:scrollHorizontally="false"
+                android:layout_marginLeft="20dp"
+                android:textAlignment="textStart" />
+
+            <TextView
+                android:id="@+id/timeWithoutSpeakingTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Max Time Without Speaking Cutoff (ms)"
+                />
+            <EditText
+                android:id="@+id/maxWithoutSpeakingTimeBox"
+                android:layout_width="75dp"
+                android:layout_height="39dp"
+                android:elegantTextHeight="false"
+                android:inputType="number"
+                android:scrollHorizontally="false"
+                android:layout_marginLeft="20dp"
+                android:textAlignment="textStart" />
+
+            <TextView
+                android:id="@+id/microphoneThresholdTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Microphone Threshold"
+                />
+            <EditText
+                android:id="@+id/microphoneThresholdBox"
+                android:layout_width="75dp"
+                android:layout_height="39dp"
+                android:elegantTextHeight="false"
+                android:inputType="number"
+                android:scrollHorizontally="false"
+                android:layout_marginLeft="20dp"
+                android:textAlignment="textStart" />
+
+            <TextView
                 android:id="@+id/praSettingsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
