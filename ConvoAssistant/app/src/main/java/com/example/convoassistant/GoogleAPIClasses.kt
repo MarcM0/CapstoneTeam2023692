@@ -112,17 +112,16 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         audioRecord.release();
         recording = false;
     }
-    fun processRecording(){
-        // Read in the file in a format google can read.
-        val recordingInputStream = FileInputStream(recordingFile);
+    fun processRecording(filename: File?){
+        // Read in the file in a format google can read use. The recorded file if no file is passed.
+        val recordingInputStream = if (filename != null) FileInputStream(filename) else FileInputStream(recordingFile); // Kotlin doesn't support ternary operators and instead recommends this :(.
         if(recordingInputStream.available() <= 0){
             return;
         }
         recognitionInput = RecognitionAudio.newBuilder().setContent(
             ByteString.copyFrom(recordingInputStream.readBytes())
         ).build();
-
-
+        Log.i("info", "Google Request Size: "+ recognitionInput.serializedSize / 1024.0 + "KB");
 
         // Perform STT and digitization.
         val speechToTextClientResponse = googleSpeechClient.recognize(recognitionConfig, recognitionInput);

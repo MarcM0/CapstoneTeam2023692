@@ -148,7 +148,7 @@ class RTAFragment: Fragment(){
                 });
             }
 
-            googleAPI.processRecording();
+            googleAPI.processRecording(null);
 
             // SST Processing failed.
             if (googleAPI.outputData.recongizedText == "") {
@@ -213,7 +213,7 @@ class RTAFragment: Fragment(){
                 // Timeout after 50 seconds.
                 val currentTime = System.currentTimeMillis();
                 val elapsedTime = currentTime - startTime;
-                if (elapsedTime >= settings.get("RTA_Max_Record_Time_Count").toInt()) {
+                if (elapsedTime >= settings.get("RTA_Max_Record_Time_Count").toLong()) {
                     stopRecording();
                     break;
                 }
@@ -225,7 +225,7 @@ class RTAFragment: Fragment(){
                 }
 
                 // Timeout after not speaking for a while.
-                if(timeLastSpoke > 0 && (currentTime - timeLastSpoke) >= settings.get("RTA_Max_Time_Without_Speaking_Count").toInt()){
+                if(timeLastSpoke > 0 && (currentTime - timeLastSpoke) >= settings.get("RTA_Max_Time_Without_Speaking_Count").toLong()){
                     stopRecording();
                     break;
                 }
