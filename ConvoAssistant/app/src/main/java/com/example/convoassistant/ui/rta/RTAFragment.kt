@@ -1,7 +1,7 @@
 package com.example.convoassistant.ui.rta
 
 import android.os.Bundle
-import android.os.Handler
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +17,7 @@ import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
 import kotlinx.coroutines.*
+import java.io.File
 import java.util.concurrent.ScheduledFuture
 import kotlin.concurrent.thread
 
@@ -39,6 +40,7 @@ class RTAFragment: Fragment(){
     //views
     private lateinit var outputTV: TextView;
     private lateinit var recordingB: Button;
+    private lateinit var testRTA: Button;
 
     // App settings.
     private lateinit var settings: SettingWrapper;
@@ -77,6 +79,12 @@ class RTAFragment: Fragment(){
         // initialize views
         outputTV =  requireView().findViewById(R.id.speech_1_text_out);
         recordingB = requireView().findViewById(R.id.toggle_recording);
+
+        testRTA = requireView().findViewById(R.id.rta_test);
+
+        testRTA.setOnClickListener {
+            testRTAMode();
+        }
 
         // call speech to text when button clicked
         recordingB.setOnClickListener {
@@ -241,6 +249,36 @@ class RTAFragment: Fragment(){
 
                 // Wait a couple ms to not overload the CPU.
                 delay(100);
+            }
+        }
+    }
+
+    fun testRTAMode() {
+        try {
+            val recordingDirPath = "rtaMode/recordings";
+            var filesInDir = requireContext().assets.list(recordingDirPath);
+            if(filesInDir == null) return;
+
+            for(file in filesInDir){
+                var recording = requireContext().assets.openFd("$recordingDirPath/$file");
+                googleAPI.processRecording(recording.createInputStream());
+
+                recording.close();
+
+                googleAPI.outputData.recongizedText// output here
+
+
+            }
+
+        } catch (e: Exception) {
+            Log.e("Error", e.toString());
+            try {
+                requireActivity().runOnUiThread(Runnable {
+                    outputTV.text =
+                        "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                });
+            } catch (e: Exception) {
+                Log.e("Error", e.toString());
             }
         }
     }

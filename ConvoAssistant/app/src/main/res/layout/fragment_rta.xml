@@ -25,13 +25,14 @@
         android:scrollbars="vertical"
         android:text="Text output will appear here"
         android:textAlignment="center"
-        android:layout_weight="10"
+        android:layout_weight="8"
         />
 
     <Button
         android:id="@+id/toggle_recording"
         android:layout_width="259dp"
         android:layout_height="50dp"
+        android:layout_marginBottom="100dp"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:text="Start Recording"
@@ -40,5 +41,30 @@
 
 
     </LinearLayout >
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/rta_test"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_margin="10dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            app:cornerRadius="100dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="35dp"
+            android:text="Test"
+            android:textAlignment="center"
+            />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

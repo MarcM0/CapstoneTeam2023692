@@ -112,9 +112,9 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         audioRecord.release();
         recording = false;
     }
-    fun processRecording(filename: File?){
+    fun processRecording(filename: FileInputStream?){
         // Read in the file in a format google can read use. The recorded file if no file is passed.
-        val recordingInputStream = if (filename != null) FileInputStream(filename) else FileInputStream(recordingFile); // Kotlin doesn't support ternary operators and instead recommends this :(.
+        val recordingInputStream = filename ?: FileInputStream(recordingFile);
         if(recordingInputStream.available() <= 0){
             return;
         }
