@@ -1,7 +1,6 @@
 package com.example.convoassistant.ui.rta
 
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.concurrent.ScheduledFuture
 import kotlin.concurrent.thread
 
@@ -254,20 +252,29 @@ class RTAFragment: Fragment(){
     }
 
     fun testRTAMode() {
-        try {
+        // Run in thread so we don't block main.
+        thread(start = true) {  try {
             val recordingDirPath = "rtaMode/recordings";
+            val expectedDirPath = "rtaMode/expectedTranscripts";
             var filesInDir = requireContext().assets.list(recordingDirPath);
-            if(filesInDir == null) return;
+            if(filesInDir == null) return@thread;
 
+            var count = 0;
             for(file in filesInDir){
-                var recording = requireContext().assets.openFd("$recordingDirPath/$file");
-                googleAPI.processRecording(recording.createInputStream());
+                var recording = requireContext().assets.open("$recordingDirPath/$file");
+                count+=1;
+
+                // Display recording time safely on UI thread.
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "Testing file "+ count + "/" + filesInDir.size + "...";
+                    });
+                }
+
+                googleAPI.processRecording(recording);
 
                 recording.close();
-
-                googleAPI.outputData.recongizedText// output here
-
-
             }
 
         } catch (e: Exception) {
@@ -281,7 +288,7 @@ class RTAFragment: Fragment(){
                 Log.e("Error", e.toString());
             }
         }
-    }
+    } }
 
     override fun onDestroyView() {
         super.onDestroyView();

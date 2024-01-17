@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
+import android.os.SystemClock.sleep
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,6 +22,7 @@ import com.google.cloud.speech.v1p1beta1.stub.SpeechStubSettings
 import com.google.protobuf.ByteString
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 import java.io.OutputStreamWriter
 
 
@@ -112,7 +114,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         audioRecord.release();
         recording = false;
     }
-    fun processRecording(filename: FileInputStream?){
+    fun processRecording(filename: InputStream?){
         // Read in the file in a format google can read use. The recorded file if no file is passed.
         val recordingInputStream = filename ?: FileInputStream(recordingFile);
         if(recordingInputStream.available() <= 0){
@@ -124,22 +126,28 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         Log.i("info", "Google Request Size: "+ recognitionInput.serializedSize / 1024.0 + "KB");
 
         // Perform STT and digitization.
-        val speechToTextClientResponse = googleSpeechClient.recognize(recognitionConfig, recognitionInput);
-        if(speechToTextClientResponse.resultsList.isEmpty()){
+        val speechToTextClientResponse = googleSpeechClient.longRunningRecognizeAsync(recognitionConfig, recognitionInput);
+        while (!speechToTextClientResponse.isDone()) {
+            // Wait a couple ms to not overload the CPU.
+            sleep(250);
+        }
+
+        val responseResultList = speechToTextClientResponse.get().resultsList;
+        if(responseResultList.isEmpty()){
             return;
         }
 
-
         var fullTranscript = "";
-        for(transciptResult in  speechToTextClientResponse.resultsList){
+        for(transciptResult in responseResultList){
             fullTranscript += transciptResult.getAlternatives(0).transcript
         }
         val transciptWords = fullTranscript.split(" ");
 
 
         // Fetch the diarization output.
-        val finalResult = speechToTextClientResponse.resultsList.last().alternativesList[0];
+        val finalResult = responseResultList.last().alternativesList[0];
         // Split the dialogue up based on speakers.
+        outputData.recongizedText = "";
         var currentSpeaker = -1;
         var speechSnippet = "";
         var diarizationIndex = 0;
