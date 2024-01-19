@@ -181,6 +181,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
                     speechSnippet += currentDiarizationWord.word + " ";
                     diarizationIndex++;
                 } else {
+                    Log.e("Error","Used panic mode during diarization")
                     // Mismatched word -> enter panic mode.
                     pasteTheRest = true;
 
