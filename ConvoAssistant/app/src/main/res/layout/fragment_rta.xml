@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="75dp"
         android:layout_marginEnd="50dp"
         android:scrollbars="vertical"
         android:text="Text output will appear here"
@@ -32,7 +32,7 @@
         android:id="@+id/toggle_recording"
         android:layout_width="259dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="50dp"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:text="Start Recording"
@@ -42,7 +42,7 @@
 
     </LinearLayout >
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
@@ -50,20 +50,22 @@
             android:id="@+id/rta_test"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_margin="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
+            android:text="Test"
+            android:textAlignment="center"
             app:cornerRadius="100dp"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
-            app:iconSize="35dp"
-            android:text="Test"
-            android:textAlignment="center"
-            />
+            app:iconSize="35dp" />
 
     </RelativeLayout>
 
