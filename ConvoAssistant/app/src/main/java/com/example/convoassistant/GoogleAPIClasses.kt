@@ -137,6 +137,7 @@ class GoogleSpeechToTextInterface(private val context: Context) {
             return;
         }
 
+
         var fullTranscript = "";
         for(transciptResult in responseResultList){
             fullTranscript += transciptResult.getAlternatives(0).transcript
@@ -146,52 +147,56 @@ class GoogleSpeechToTextInterface(private val context: Context) {
 
         // Fetch the diarization output.
         val finalResult = responseResultList.last().alternativesList[0];
-        // Split the dialogue up based on speakers.
-        outputData.recongizedText = "";
-        var currentSpeaker = -1;
-        var speechSnippet = "";
-        var diarizationIndex = 0;
-        val newSnippet = "\n\""
-        var pasteTheRest = false;
-        for(word in transciptWords){
-            // Panic mode -> paste the rest of the transcript under a new user.
-            if(pasteTheRest){
-                speechSnippet += word + " ";
-                continue;
-            }
-
-            // Check to see if the diarized word matches the transcript.
-            var currentDiarizationWord = finalResult.getWords(diarizationIndex);
-            if(word == currentDiarizationWord.word){
-                // Speaker change detected.
-                if( currentDiarizationWord.speakerTag != currentSpeaker){
-                    // End the previous speaker and add to the output.
-                    if(speechSnippet != ""){
-                        outputData.recongizedText += speechSnippet + '"';
-                    }
-
-                    // Set up the new speaker.
-                    currentSpeaker = currentDiarizationWord.speakerTag;
-                    speechSnippet = newSnippet;
+        if(finalResult.wordsCount>0) {
+            // Split the dialogue up based on speakers.
+            outputData.recongizedText = "";
+            var currentSpeaker = -1;
+            var speechSnippet = "";
+            var diarizationIndex = 0;
+            val newSnippet = "\n\""
+            var pasteTheRest = false;
+            for (word in transciptWords) {
+                // Panic mode -> paste the rest of the transcript under a new user.
+                if (pasteTheRest) {
+                    speechSnippet += word + " ";
+                    continue;
                 }
 
-                // Build the snippet.
-                speechSnippet += currentDiarizationWord.word + " ";
-                diarizationIndex++;
-            } else{
-                // Mismatched word -> enter panic mode.
-                pasteTheRest = true;
+                // Check to see if the diarized word matches the transcript.
+                var currentDiarizationWord = finalResult.getWords(diarizationIndex);
+                if (word == currentDiarizationWord.word) {
+                    // Speaker change detected.
+                    if (currentDiarizationWord.speakerTag != currentSpeaker) {
+                        // End the previous speaker and add to the output.
+                        if (speechSnippet != "") {
+                            outputData.recongizedText += speechSnippet + '"';
+                        }
 
-                // Set up the new speaker for the panic text.
-                outputData.recongizedText += speechSnippet + '"';
-                speechSnippet = newSnippet;
-                currentSpeaker++;
+                        // Set up the new speaker.
+                        currentSpeaker = currentDiarizationWord.speakerTag;
+                        speechSnippet = newSnippet;
+                    }
+
+                    // Build the snippet.
+                    speechSnippet += currentDiarizationWord.word + " ";
+                    diarizationIndex++;
+                } else {
+                    // Mismatched word -> enter panic mode.
+                    pasteTheRest = true;
+
+                    // Set up the new speaker for the panic text.
+                    outputData.recongizedText += speechSnippet + '"';
+                    speechSnippet = newSnippet;
+                    currentSpeaker++;
+                }
             }
-        }
 
-        // End the transcription.
-        outputData.recongizedText += speechSnippet + '"';
-        outputData.lastSpeaker = currentSpeaker;
+            // End the transcription.
+            outputData.recongizedText += speechSnippet + '"';
+            outputData.lastSpeaker = currentSpeaker;
+        }else{
+            outputData.recongizedText += '"'+fullTranscript+'"'
+        }
 
         Log.i("undiarizedText", fullTranscript )
         Log.i("diarizedText", outputData.recongizedText )

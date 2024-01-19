@@ -18,6 +18,10 @@ import com.example.convoassistant.makeChatGPTRequest
 import kotlinx.coroutines.*
 import java.util.concurrent.ScheduledFuture
 import kotlin.concurrent.thread
+import kotlin.time.Duration
+import kotlin.time.measureTime
+import com.example.convoassistant.WordSequenceAligner
+import kotlin.time.DurationUnit
 
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
@@ -133,6 +137,53 @@ class RTAFragment: Fragment(){
         }
     }
 
+    fun stopRecordingHelper(outputToUIandSound:Boolean=true): Boolean {
+        // SST Processing failed.
+        if (googleAPI.outputData.recongizedText == "") {
+            // Run the following on the UI thread safely.
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(Runnable {
+                    // Display output text on screen.
+                    outputTV.text = "Sorry. We could not hear you!";
+                });
+            }
+            return false;
+        }
+
+        // Run the following on the UI thread safely.
+        if (getActivity() != null) {
+            requireActivity().runOnUiThread(Runnable {
+                // Display output text on screen.
+                outputTV.text = "Speech processed. Generating reflection...";
+            });
+        }
+
+        val gptPrompt =
+            pre_prompt + " " +
+                    googleAPI.outputData.recongizedText
+        //                            " Generate the response using user " +
+        //                            googleAPI.outputData.lastSpeaker +
+        //                            " words.";
+
+        // Run the OpenAI request in a subroutine.
+        val outputText = makeChatGPTRequest(gptPrompt, max_tokens, temperature = 1.1);
+
+        if(outputToUIandSound) {
+            // Run the following on the UI thread safely.
+            if (getActivity() != null) {
+                // display output text on screen
+                requireActivity().runOnUiThread(Runnable {
+                    outputTV.text = outputText;
+                });
+            }
+
+            // Text to speech.
+            ttsInterface.speakOut(outputText);
+        }
+
+        return true;
+    }
+
     fun stopRecording(){
         thread(start = true) { try {
             // Handle ending the recording.
@@ -156,46 +207,9 @@ class RTAFragment: Fragment(){
 
             googleAPI.processRecording(null);
 
-            // SST Processing failed.
-            if (googleAPI.outputData.recongizedText == "") {
-                // Run the following on the UI thread safely.
-                if (getActivity() != null) {
-                    requireActivity().runOnUiThread(Runnable {
-                        // Display output text on screen.
-                        outputTV.text = "Sorry. We could not hear you!";
-                    });
-                }
-                return@thread;
+            if(!stopRecordingHelper()){
+                return@thread
             }
-
-            // Run the following on the UI thread safely.
-            if (getActivity() != null) {
-                requireActivity().runOnUiThread(Runnable {
-                    // Display output text on screen.
-                    outputTV.text = "Speech processed. Generating reflection...";
-                });
-            }
-
-            val gptPrompt =
-                pre_prompt + " " +
-                        googleAPI.outputData.recongizedText
-            //                            " Generate the response using user " +
-            //                            googleAPI.outputData.lastSpeaker +
-            //                            " words.";
-
-            // Run the OpenAI request in a subroutine.
-            val outputText = makeChatGPTRequest(gptPrompt, max_tokens, temperature = 1.1);
-
-            // Run the following on the UI thread safely.
-            if (getActivity() != null) {
-                // display output text on screen
-                requireActivity().runOnUiThread(Runnable {
-                    outputTV.text = outputText;
-                });
-            }
-
-            // Text to speech.
-            ttsInterface.speakOut(outputText);
         } catch(e: Exception) {
             Log.e("Error", e.toString());
             try {
@@ -258,13 +272,27 @@ class RTAFragment: Fragment(){
             val expectedDirPath = "rtaMode/expectedTranscripts";
             var filesInDir = requireContext().assets.list(recordingDirPath);
             if(filesInDir == null) return@thread;
+            val timesListGoogle: MutableList<Double> = mutableListOf()
+            val timesListOpenAI: MutableList<Double> = mutableListOf()
+            val timesListTotal: MutableList<Double> = mutableListOf()
+            val diarizationAccList: MutableList<Double> = mutableListOf()
+            val transcribeAccList: MutableList<Double> = mutableListOf()
+
+            val reNotAlphaNum = Regex("[^A-Za-z0-9 ]") //alphanumeric
+            val reWhiteSpace = Regex("\\s+") //whitespace
 
             var count = 0;
             for(file in filesInDir){
-                var recording = requireContext().assets.open("$recordingDirPath/$file");
+                val recording = requireContext().assets.open("$recordingDirPath/$file");
                 count+=1;
+                Log.i("Testinfo","\n\nfilename: "+file)
 
-                // Display recording time safely on UI thread.
+                val textFilePath = "$expectedDirPath/$file".substringBeforeLast(".")+".txt";
+                val textTruth = reWhiteSpace.replace(requireContext().assets.open(textFilePath).bufferedReader().use {
+                    it.readText()
+                }, " ").toLowerCase().strip();
+
+                    // Display recording time safely on UI thread.
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(Runnable {
                         // Display output text on screen.
@@ -272,10 +300,52 @@ class RTAFragment: Fragment(){
                     });
                 }
 
-                googleAPI.processRecording(recording);
+                val timeTakenGoogle = measureTime {
+                    googleAPI.processRecording(recording);
+                }
+                val timeTakenOpenAI = measureTime {
+                    if(!stopRecordingHelper(outputToUIandSound=false)){
+                        Log.e("Error","Error occured while testing")
+                        return@thread
+                    }
+                }
+                Log.i("Testinfo","timeTakenGoogle:"+timeTakenGoogle);
+                timesListGoogle.add(timeTakenGoogle.toDouble(DurationUnit.SECONDS));
+                Log.i("Testinfo","timeTakenOpenAI:"+timeTakenOpenAI);
+                timesListOpenAI.add(timeTakenOpenAI.toDouble(DurationUnit.SECONDS));
+                Log.i("Testinfo","timeTakenTotal:"+(timeTakenGoogle+timeTakenOpenAI));
+                timesListTotal.add((timeTakenGoogle+timeTakenOpenAI).toDouble(DurationUnit.SECONDS));
+
+                val detectedText = reWhiteSpace.replace(googleAPI.outputData.recongizedText, " ").toLowerCase().strip();
+
+                //word lists with only alphanumeric stuff
+                val truthWordList = reNotAlphaNum.replace(textTruth, "").strip().split("\\s+".toRegex())
+                val detectedWordList = reNotAlphaNum.replace(detectedText, "").strip().split("\\s+".toRegex())
+                Log.i("Testinfo","truthWordList:   "+truthWordList.toString());
+                Log.i("Testinfo","detectedWordList:"+detectedWordList.toString());
+
+                //transcript
+                val compareWords = WordSequenceAligner();
+                val alignmentWords = compareWords.align(truthWordList.toTypedArray(),detectedWordList.toTypedArray())
+                //can also get word error rate from this library but this is more intuitive
+                val percentCorrect = (100*alignmentWords.numCorrect).toDouble()/truthWordList.size
+                transcribeAccList.add(percentCorrect);
+                Log.i("Testinfo","percentCorrect:"+percentCorrect.toString());
+
+                //TODO FIX TRANSCRIPT GROUND TRUTH
+
+
+                //diarization
+
 
                 recording.close();
             }
+            //print stats
+            Log.i("Testinfo", "avgTimeGoogle"+timesListGoogle.average());
+            Log.i("Testinfo", "avgTimeOpenAI"+timesListOpenAI.average());
+            Log.i("Testinfo", "avgTimeTotal"+timesListTotal.average());
+            Log.i("Testinfo", "diarizationAcc"+diarizationAccList.average());
+            Log.i("Testinfo", "transcribeAccList"+transcribeAccList.average());
 
         } catch (e: Exception) {
             Log.e("Error", e.toString());
