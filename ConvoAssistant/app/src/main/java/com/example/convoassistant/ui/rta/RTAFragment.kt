@@ -280,6 +280,7 @@ class RTAFragment: Fragment(){
 
             val reNotAlphaNum = Regex("[^A-Za-z0-9 ]") //alphanumeric
             val reWhiteSpace = Regex("\\s+") //whitespace
+            val reInQuotes = Regex("\".*?\"")
 
             var count = 0;
             for(file in filesInDir){
@@ -330,22 +331,62 @@ class RTAFragment: Fragment(){
                 //can also get word error rate from this library but this is more intuitive
                 val percentCorrect = (100*alignmentWords.numCorrect).toDouble()/truthWordList.size
                 transcribeAccList.add(percentCorrect);
-                Log.i("Testinfo","percentCorrect:"+percentCorrect.toString());
+                Log.i("Testinfo","percentCorrectTranscribe:"+percentCorrect.toString());
 
-                //TODO FIX TRANSCRIPT GROUND TRUTH
+                //TODO FIX TRANSCRIPT GROUND TRUTH WORDS AND DIARIZATION
 
 
                 //diarization
+                //split into words per speaker
+                val speaker1Truth: MutableList<String> = mutableListOf()
+                val speaker2Truth: MutableList<String> = mutableListOf()
+                var isSpeaker1 = true;
+                for (utterance in reInQuotes.findAll(textTruth)){
+                    val wordsToAdd = reNotAlphaNum.replace(utterance.value, "").strip().split("\\s+".toRegex())
+                    if(isSpeaker1){
+                        speaker1Truth.addAll(wordsToAdd)
+                    }else{
+                        speaker2Truth.addAll(wordsToAdd)
+                    }
+                    isSpeaker1 = !isSpeaker1;
+                }
+
+                val speaker1Predict: MutableList<String> = mutableListOf()
+                val speaker2Predict: MutableList<String> = mutableListOf()
+                isSpeaker1 = true;
+                for (utterance in reInQuotes.findAll(detectedText)){
+                    val wordsToAdd = reNotAlphaNum.replace(utterance.value, "").strip().split("\\s+".toRegex())
+                    if(isSpeaker1){
+                        speaker1Predict.addAll(wordsToAdd)
+                    }else{
+                        speaker2Predict.addAll(wordsToAdd)
+                    }
+                    isSpeaker1 = !isSpeaker1;
+
+                }
+
+//                Log.i("Testinfo","speaker1Truth"+speaker1Truth.toString());
+//                Log.i("Testinfo","speaker2Truth"+speaker2Truth.toString());
+//                Log.i("Testinfo","speaker1Predict"+speaker1Predict.toString());
+//                Log.i("Testinfo","speaker2Predict"+speaker2Predict.toString());
+
+                //get percentCorrect
+                val alignmentWordsS1 = compareWords.align(speaker1Truth.toTypedArray(),speaker1Predict.toTypedArray())
+                val alignmentWordsS2 = compareWords.align(speaker2Truth.toTypedArray(),speaker2Predict.toTypedArray())
+                //can also get word error rate from this library but this is more intuitive
+                val percentCorrectDiarize = (100*(alignmentWordsS1.numCorrect+alignmentWordsS2.numCorrect)).toDouble()/truthWordList.size
+                diarizationAccList.add(percentCorrectDiarize);
+                Log.i("Testinfo","percentCorrectDiarize:"+percentCorrectDiarize.toString());
 
 
                 recording.close();
             }
             //print stats
-            Log.i("Testinfo", "avgTimeGoogle"+timesListGoogle.average());
-            Log.i("Testinfo", "avgTimeOpenAI"+timesListOpenAI.average());
-            Log.i("Testinfo", "avgTimeTotal"+timesListTotal.average());
-            Log.i("Testinfo", "diarizationAcc"+diarizationAccList.average());
-            Log.i("Testinfo", "transcribeAccList"+transcribeAccList.average());
+            Log.i("Testinfo", "avgTimeGoogle:    "+timesListGoogle.average());
+            Log.i("Testinfo", "avgTimeOpenAI:    "+timesListOpenAI.average());
+            Log.i("Testinfo", "avgTimeTotal:     "+timesListTotal.average());
+            Log.i("Testinfo", "diarizationAcc:   "+diarizationAccList.average());
+            Log.i("Testinfo", "transcribeAccList:"+transcribeAccList.average());
 
         } catch (e: Exception) {
             Log.e("Error", e.toString());
