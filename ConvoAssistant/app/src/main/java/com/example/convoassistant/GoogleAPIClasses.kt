@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
-import android.os.SystemClock.sleep
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -126,17 +125,20 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         Log.i("info", "Google Request Size: "+ recognitionInput.serializedSize / 1024.0 + "KB");
 
         // Perform STT and digitization.
-        val speechToTextClientResponse = googleSpeechClient.longRunningRecognizeAsync(recognitionConfig, recognitionInput);
-        while (!speechToTextClientResponse.isDone()) {
-            // Wait a couple ms to not overload the CPU.
-            sleep(250);
-        }
 
-        val responseResultList = speechToTextClientResponse.get().resultsList;
-        if(responseResultList.isEmpty()){
+
+        //TODO use recognize if < 1 min, longRunningRecognizeAsync if >= 1min
+//        val speechToTextClientResponse = googleSpeechClient.longRunningRecognizeAsync(recognitionConfig, recognitionInput);
+//        while (!speechToTextClientResponse.isDone()) { //TODO bottleneck
+//            // Wait a couple ms to not overload the CPU.
+//            sleep(100);
+//        }
+        val speechToTextClientResponse = googleSpeechClient.recognize(recognitionConfig, recognitionInput);
+        val responseResultList = speechToTextClientResponse.resultsList;
+        // val responseResultList = speechToTextClientResponse.get().resultsList;
+        if(speechToTextClientResponse.resultsList.isEmpty()) {
             return;
         }
-
 
         var fullTranscript = "";
         for(transciptResult in responseResultList){

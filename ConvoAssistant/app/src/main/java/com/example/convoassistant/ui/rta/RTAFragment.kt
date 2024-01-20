@@ -383,6 +383,7 @@ class RTAFragment: Fragment(){
             Log.i("Testinfo", "avgTimeGoogle:    "+timesListGoogle.average());
             Log.i("Testinfo", "avgTimeOpenAI:    "+timesListOpenAI.average());
             Log.i("Testinfo", "avgTimeTotal:     "+timesListTotal.average());
+            Log.i("Testinfo", "worstTimeTotal:   "+timesListTotal.max());
             Log.i("Testinfo", "diarizationAcc:   "+diarizationAccList.average());
             Log.i("Testinfo", "transcribeAccList:"+transcribeAccList.average());
 
