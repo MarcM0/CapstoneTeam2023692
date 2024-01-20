@@ -89,7 +89,10 @@ class GoogleSpeechToTextInterface(private val context: Context) {
             .setSampleRateHertz(sampleRate)
             .setLanguageCode("en-US")
             .setDiarizationConfig(diarizationConfig)
-//            .setModel("phone_call")
+            .setModel("video")
+            .setEnableAutomaticPunctuation(false)
+            .setEnableSeparateRecognitionPerChannel(true)
+            .setMaxAlternatives(1)
             .build();
 
         // Get the storage file to be used.
