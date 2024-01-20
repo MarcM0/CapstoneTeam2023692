@@ -333,8 +333,6 @@ class RTAFragment: Fragment(){
                 transcribeAccList.add(percentCorrect);
                 Log.i("Testinfo","percentCorrectTranscribe:"+percentCorrect.toString());
 
-                //TODO FIX TRANSCRIPT GROUND TRUTH WORDS AND DIARIZATION
-
 
                 //diarization
                 //split into words per speaker

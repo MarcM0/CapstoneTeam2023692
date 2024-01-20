@@ -1,4 +1,4 @@
-//based on/from https://github.com/romanows/WordSequenceAligner/blob/master/src/com/pwnetics/metric/WordSequenceAligner.java
+//from https://github.com/romanows/WordSequenceAligner/blob/master/src/com/pwnetics/metric/WordSequenceAligner.java
 /*
 Copyright 2011 Brian Romanowski. All rights reserved.
 Portions Copyright 1999-2002 Carnegie Mellon University.  
