@@ -18,8 +18,6 @@ import com.example.convoassistant.makeChatGPTRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.concurrent.thread
-import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import kotlin.random.Random
 
 
