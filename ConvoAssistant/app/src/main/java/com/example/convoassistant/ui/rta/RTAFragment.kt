@@ -226,6 +226,7 @@ class RTAFragment: Fragment(){
 
     fun startRecordingBackgroundThread(): Job {
         return CoroutineScope(Dispatchers.Default).launch {
+            try{
             val startTime = System.currentTimeMillis();
             var timeLastSpoke: Long = -1;
             while (googleAPI.recording) {
@@ -262,8 +263,19 @@ class RTAFragment: Fragment(){
                 // Wait a couple ms to not overload the CPU.
                 delay(100);
             }
+            } catch(e: Exception) {
+                Log.e("Error", e.toString());
+                try {
+                    requireActivity().runOnUiThread(Runnable {
+                        recordingB.text = "Start Recording"
+                        outputTV.text =
+                            "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                    });
+                } catch (e: Exception) {
+                    Log.e("Error", e.toString());
+                }
+            }}
         }
-    }
 
     fun testRTAMode() {
         // Run in thread so we don't block main.
