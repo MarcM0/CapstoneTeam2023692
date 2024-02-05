@@ -18,6 +18,8 @@ import com.example.convoassistant.makeChatGPTRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.concurrent.thread
+import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import kotlin.random.Random
 
 
@@ -106,6 +108,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
     override fun onMicResult(input: String){
         //run in thread so we don't block main
         thread(start = true) {
+            try{
             val combinedInput = ratingPrompt +
                                 "\nOrignal Statment:\"" + currentPracticeScenario +"\"" +
                                 "\nResponse:\"" + input +"\""
@@ -129,18 +132,29 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
                 ttsInterface.speakOut(outputText)
             }
 
+            } catch(e: Exception) {
+                Log.e("Error", e.toString());
+                try {
+                    requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
+                        outputTV.text =
+                            "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                    });
+                } catch (e: Exception) {
+                    Log.e("Error", e.toString());
+                }
+            }
         }
     }
 
     // Callback for the new scenario prompt button.
-    fun generatePracticePrompt(){
+    fun generatePracticePrompt() {
 
         // Display a loading message.
         outputTV.text = "Generating Practice Scenario..."
 
         // 50/50 chance of remembering last scenario. (Helps with repetitiveness)
-        var scenarioPromptNew = currentPracticeScenario+"\n"+scenarioPrompt;
-        if(Random.nextBoolean()){
+        var scenarioPromptNew = currentPracticeScenario + "\n" + scenarioPrompt;
+        if (Random.nextBoolean()) {
             scenarioPromptNew = scenarioPrompt
         }
 
@@ -153,22 +167,36 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
         // run in thread so we don't block main
         thread(start = true) {
-            // Run the OpenAI request in a subroutine.
-            currentPracticeScenario = makeChatGPTRequest(scenarioPromptNew, scenarioTokens, temperature = 1.5)
+            try {
+                // Run the OpenAI request in a subroutine.
+                currentPracticeScenario =
+                    makeChatGPTRequest(scenarioPromptNew, scenarioTokens, temperature = 1.5)
 
-            /** check if activity still exist */
-            if (getActivity() != null) {
+                /** check if activity still exist */
+                if (getActivity() != null) {
 
-                requireActivity().runOnUiThread(Runnable {
-                    // display output text on screen
-                    outputTV.text = (currentPracticeScenario)
-                    // Re-enable the mic and new prompt buttons after generating a scenario.
-                    checkIfResponseButtonShouldBeEnabled()
-                    generatePromptB.isEnabled = true;
-                })
+                    requireActivity().runOnUiThread(Runnable {
+                        // display output text on screen
+                        outputTV.text = (currentPracticeScenario)
+                        // Re-enable the mic and new prompt buttons after generating a scenario.
+                        checkIfResponseButtonShouldBeEnabled()
+                        generatePromptB.isEnabled = true;
+                    })
 
-                //text to speech
-                ttsInterface.speakOut(currentPracticeScenario)
+                    //text to speech
+                    ttsInterface.speakOut(currentPracticeScenario)
+                }
+
+            } catch (e: Exception) {
+                Log.e("Error", e.toString());
+                try {
+                    requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
+                        outputTV.text =
+                            "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                    });
+                } catch (e: Exception) {
+                    Log.e("Error", e.toString());
+                }
             }
         }
     }
