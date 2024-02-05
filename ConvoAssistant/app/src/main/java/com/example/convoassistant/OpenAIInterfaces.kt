@@ -68,7 +68,7 @@ fun makeChatGPTRequest(prompt: String, max_tokens: Int = 50, temperature: Double
             var responseObject = gsonParser.fromJson(response.bodyAsText(), OpenAIResponse::class.java)
             if(responseObject.choices == null)
             {
-                output = "Error occured in chatgpt call"
+                output = "Error occured in OpenAI call"
             }
             else
             {

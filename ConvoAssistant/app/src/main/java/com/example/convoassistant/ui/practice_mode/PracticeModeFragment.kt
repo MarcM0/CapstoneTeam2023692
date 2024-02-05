@@ -1,10 +1,11 @@
 package com.example.convoassistant.ui.practice_mode
 
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
@@ -14,9 +15,11 @@ import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentPracticeModeBinding
 import com.example.convoassistant.makeChatGPTRequest
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import kotlin.concurrent.thread
-import android.text.method.ScrollingMovementMethod
 import kotlin.random.Random
+
 
 // Practice mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
@@ -44,6 +47,8 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
     private lateinit var outputTV: TextView
     private lateinit var micIB: Button
     private lateinit var generatePromptB: Button
+    private lateinit var testModeB: Button
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,6 +70,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         // initialize views
         outputTV =  requireView().findViewById(R.id.speech_2_text_out)
         micIB = requireView().findViewById(R.id.rate_reflection_button)
+        testModeB = requireView().findViewById((R.id.pratice_test))
 
         generatePromptB = requireView().findViewById(R.id.new_practice_prompt)
 
@@ -79,6 +85,9 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
         generatePromptB.setOnClickListener{
             generatePracticePrompt()
+        }
+        testModeB.setOnClickListener {
+            testPracticeMode()
         }
         //set up text to speech
         ttsInterface = TTSInterfaceClass(requireContext())
@@ -173,6 +182,112 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
             micIB.visibility = View.INVISIBLE
         }
     }
+
+    fun testPracticeMode(){
+        // Run in thread so we don't block main.
+        thread(start = true) {  try {
+            val testFilePath = "practiceModeTestCases.txt";
+            val testFile = requireContext().assets.open(testFilePath);
+            val testFileReader = BufferedReader(InputStreamReader(testFile));
+
+            val badSubStrings = arrayOf(
+                "The given response does not meet the criteria for a good reflection"
+            );
+            val goodSubStrings = arrayOf(
+                "The reflection is good because"
+            )
+
+            // Get the first test case.
+            var line = testFileReader.readLine()
+            var testCaseCount = 0
+            var correctlyClassified = 0
+            var inconclusivelyClassified = 0
+            // Loop until we have run out of test cases.
+            while(line != null){
+                testCaseCount+=1;
+
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
+                        // Display output text on screen.
+                        outputTV.text = "On Testcase $testCaseCount..."
+                    });
+                }
+
+                // Parse the entry.
+                var testCaseSplit = line.split(";");
+                if(testCaseSplit.size != 3){
+                    Log.e("Error", "Cannot process test case $testCaseCount: $line");
+                    // Get the next test case.
+                    line = testFileReader.readLine()
+                    continue;
+                }
+
+                // Make the OpenAI request.
+                val combinedInput = ratingPrompt +
+                        "\nOrignal Statment:\"" +  testCaseSplit[0].trim() +"\"" +
+                        "\nResponse:\"" + testCaseSplit[1].trim()  +"\""
+                val outputText = makeChatGPTRequest(combinedInput, ratingTokens, temperature = 0.1)
+
+                // Try and classify if OpenAI said this was a good or bad response.
+                var classifiedBad = false
+                for (substring in badSubStrings){
+                    if(outputText.contains(substring)){classifiedBad = true; break;}
+                }
+                var classifiedGood = false
+                for (substring in goodSubStrings){
+                    if(outputText.contains(substring)){classifiedGood = true; break;}
+                }
+
+                Log.i("Testinfo", "Testcase $testCaseCount: $line")
+                Log.i("Testinfo", "Testcase $testCaseCount classification: $outputText")
+
+                // If both classified as both or neither, error out.
+                if(classifiedBad == classifiedGood){
+                    inconclusivelyClassified+=1;
+                    Log.i("Testinfo", "Testcase $testCaseCount result: Inconclusive!");
+                }
+                // Correctly classified.
+                else if(
+                    (classifiedBad && testCaseSplit[2].trim() == "bad") ||
+                    (classifiedGood && testCaseSplit[2].trim() == "good")
+                ){
+                    correctlyClassified+=1
+                    Log.i("Testinfo", "Testcase $testCaseCount result: Correctly Classified!");
+                }
+                // Incorrect.
+                else {
+                    Log.i("Testinfo", "Testcase $testCaseCount result: Incorrectly Classified!");
+                }
+
+                // Get the next test case.
+                line = testFileReader.readLine()
+            }
+
+            // Report the final result.
+            if(inconclusivelyClassified>0) Log.i("TestResult", "couldNotClassifyAutomatically:    $inconclusivelyClassified");
+            Log.i("TestResult", "accuracyRatio:    $correctlyClassified / ${testCaseCount-inconclusivelyClassified}");
+            Log.i("TestResult", "accuracy:    ${correctlyClassified / (testCaseCount-inconclusivelyClassified) * 100}%");
+
+            testFileReader.close();
+
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
+                    // Display output text on screen.
+                    outputTV.text = "Done Testing Practice Mode. View Logcat for results!"
+                });
+            }
+        } catch (e: Exception) {
+            Log.e("Error", e.toString());
+            try {
+                requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
+                    outputTV.text =
+                        "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                });
+            } catch (e: Exception) {
+                Log.e("Error", e.toString());
+            }
+        }
+    } }
 
     override fun onDestroyView() {
         super.onDestroyView()

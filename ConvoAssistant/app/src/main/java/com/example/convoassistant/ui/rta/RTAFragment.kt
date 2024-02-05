@@ -380,12 +380,19 @@ class RTAFragment: Fragment(){
                 recording.close();
             }
             //print stats
-            Log.i("Testinfo", "avgTimeGoogle:    "+timesListGoogle.average());
-            Log.i("Testinfo", "avgTimeOpenAI:    "+timesListOpenAI.average());
-            Log.i("Testinfo", "avgTimeTotal:     "+timesListTotal.average());
-            Log.i("Testinfo", "worstTimeTotal:   "+timesListTotal.max());
-            Log.i("Testinfo", "diarizationAcc:   "+diarizationAccList.average());
-            Log.i("Testinfo", "transcribeAccList:"+transcribeAccList.average());
+            Log.i("TestResult", "avgTimeGoogle:    "+timesListGoogle.average());
+            Log.i("TestResult", "avgTimeOpenAI:    "+timesListOpenAI.average());
+            Log.i("TestResult", "avgTimeTotal:     "+timesListTotal.average());
+            Log.i("TestResult", "worstTimeTotal:   "+timesListTotal.max());
+            Log.i("TestResult", "diarizationAcc:   "+diarizationAccList.average());
+            Log.i("TestResult", "transcribeAccList:"+transcribeAccList.average());
+
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
+                    // Display output text on screen.
+                    outputTV.text = "Done Testing RTA Mode. View Logcat for results!"
+                });
+            }
 
         } catch (e: Exception) {
             Log.e("Error", e.toString());
