@@ -226,44 +226,49 @@ class RTAFragment: Fragment(){
 
     fun startRecordingBackgroundThread(): Job {
         return CoroutineScope(Dispatchers.Default).launch {
-            try{
-            val startTime = System.currentTimeMillis();
-            var timeLastSpoke: Long = -1;
-            while (googleAPI.recording) {
+            try {
+                val startTime = System.currentTimeMillis();
+                var timeLastSpoke: Long = -1;
+                while (googleAPI.recording) {
 
-                // Timeout after 50 seconds.
-                val currentTime = System.currentTimeMillis();
-                val elapsedTime = currentTime - startTime;
-                if (elapsedTime >= settings.get("RTA_Max_Record_Time_Count").toLong()) {
-                    stopRecording();
-                    break;
+                    // Timeout after 50 seconds.
+                    val currentTime = System.currentTimeMillis();
+                    val elapsedTime = currentTime - startTime;
+                    if (elapsedTime >= settings.get("RTA_Max_Record_Time_Count").toLong()) {
+                        stopRecording();
+                        break;
+                    }
+
+                    // Check current mic levels.
+                    val currentMicAmp = googleAPI.getMicAmplitude();
+                    if (currentMicAmp >= settings.get("RTA_Microphone_Threshold_Count").toInt()) {
+                        timeLastSpoke = currentTime;
+                    }
+
+                    // Timeout after not speaking for a while.
+                    if (timeLastSpoke > 0 && (currentTime - timeLastSpoke) >= settings.get("RTA_Max_Time_Without_Speaking_Count")
+                            .toLong()
+                    ) {
+                        stopRecording();
+                        break;
+                    }
+
+                    // Display recording time safely on UI thread.
+                    if (getActivity() != null) {
+                        requireActivity().runOnUiThread(Runnable {
+                            // Display output text on screen.
+                            outputTV.text = "Recording...\nMicrophone Level: " + currentMicAmp +
+                                    "\nElpased Recording Time: " + elapsedTime / 1000.0 + "s";
+                        });
+                    }
+
+                    // Wait a couple ms to not overload the CPU.
+                    delay(100);
                 }
-
-                // Check current mic levels.
-                val currentMicAmp = googleAPI.getMicAmplitude();
-                if(currentMicAmp >= settings.get("RTA_Microphone_Threshold_Count").toInt()){
-                    timeLastSpoke = currentTime;
-                }
-
-                // Timeout after not speaking for a while.
-                if(timeLastSpoke > 0 && (currentTime - timeLastSpoke) >= settings.get("RTA_Max_Time_Without_Speaking_Count").toLong()){
-                    stopRecording();
-                    break;
-                }
-
-                // Display recording time safely on UI thread.
-                if (getActivity() != null) {
-                    requireActivity().runOnUiThread(Runnable {
-                        // Display output text on screen.
-                        outputTV.text = "Recording...\nMicrophone Level: " + currentMicAmp+
-                                        "\nElpased Recording Time: " +elapsedTime / 1000.0+"s";
-                    });
-                }
-
-                // Wait a couple ms to not overload the CPU.
-                delay(100);
-            }
+            }catch(e:CancellationException ){
+                //this is fine and expected when we cancel the job
             } catch(e: Exception) {
+
                 Log.e("Error", e.toString());
                 try {
                     requireActivity().runOnUiThread(Runnable {
