@@ -1,2 +1,30 @@
-"How is the job search going?" "I've been feeling really frustrated lately, constantly sending out job applications and attending interviews, but it seems like finding the right job is more challenging than I anticipated."; Womp womp; bad
-"I just don't know what to do" "I mean you are trying your best" "Ya but I feel like nomatter what I do, it's not good enough"; It seems to you that its beyond your control and that you may be wasting your effort; good
+"How's your new cat?" "I'm having some trouble with him late at night. He keeps running around and knocking things over and it's really starting to affect my sleep."; I can see that you're feeling tired because of your cat.;good
+"Have you heard of this new game that came out recently?" "Yeah, I've been having a lot of fun playing it. I feel really fulfilled.";You seem like you're really enjoying this game.;good
+"I haven't seen you around lately." "Yeah, I've been really busy with work. Sometimes it feels like my workload never ends.";Sounds like you're feeling overwhelmed with your workload.;good
+"I'm so excited to cook dinner tonight." "Why's that" "I have this really great recipe for bean soup that I want to try.";You're really looking forward to trying this new recipe.;good
+"Are we still going to try out that new restaurant tomorrow?" "Sorry something came up last minute and I can't make it. I'm really sorry.";I can see that you feel really sorry about not being able to make it;good
+"How's your new cat?" "I'm having some trouble with him late at night. He keeps running around and knocking things over and it's really starting to affect my sleep.";You should give him away.;bad
+"Have you heard of this new game that came out recently?" "Yeah, I've been having a lot of fun playing it. I feel really fulfilled.";That's cool bro;bad
+"I haven't seen you around lately." "Yeah, I've been really busy with work. Sometimes it feels like my workload never ends.";You're just not working hard enough;bad
+"I'm so excited to cook dinner tonight." "Why's that" "I have this really great recipe for bean soup that I want to try.";I don't like bean soup;bad
+"Are we still going to try out that new restaurant tomorrow?" "Sorry something came up last minute and I can't make it. I'm really sorry.";I don't want to be friends anymore;bad
+"Hello Matthew! How have you been?" "I've been grappling with this intense creative block lately and it's starting to take a toll on my overall motivation and self-confidence.";I see this creative block is really effecting how you feel.;good
+"Hey Paul, do you have any plans this weekend?" "Yeah Alice! I'm going to a Nirvana concert. I am so excited to see them";Wow. You must be such a big fan!;good
+"Hey. How is it going" "I've been daydreaming about this entrepreneurial venture, but the fear of failure is holding me back.";I hear you. You must feel so overwhelmed;good
+"Hello. What's up?" "I've been struggling with finding time for my hobbies. Work's been all-consuming lately, and it's making me miss the things I used to love.";You've been struggling to balance a good work-life balance.;good
+"Hello! It's been awhile. How have you been?" "I've been dealing with a mix of excitement and nervousness as I'm preparing to move to a new city for a job opportunity.";I can see you are feeling conflicting emotions about this change.;good
+""How is the job search going?" "I've been feeling really frustrated lately, constantly sending out job applications and attending interviews, but it seems like finding the right job is more challenging than I anticipated.";Womp womp.;bad
+"I'm grappling with the aftermath of a heated argument with my girlfriend and now there's this awkward tension hanging in the air.";I can see you are stressed out about your school work.;bad
+"I'm so glad that test is finally over" " Yeah me too. How do you think you did?" "I'm not sure I passed.";Oh. I think I did.;bad
+"Hey did you hear the news" "No what's up" "I got accepted to Yale.";Good luck. You'll need it.;bad
+""I recently started baking." "That's exciting! What have you made so far?" "I made some sourdough. It was really fun and I'm so proud of the result.";This is a good reflective statement.;bad
+"How is it going friend" "I am doing much better now that the assignment is out of the way";You feel relieved that the assignment is out of the way.;good
+"did you tell her about how you feel" "I'm not sure she would understand";You're not sure if she would react negatively or sympathize with your situation.;good
+"I just don't know what to do" "I mean you are trying your best" "Ya but I feel like no matter what I do, it's not good enough";It seems to you that its beyond your control and that you may be wasting your effort;good
+"It was so embarrassing" "Ya I can imagine" "Literally in front of all my coworkers he would not stop yelling at me";He made you feel worthless in front of your peers;good
+"I've picked up painting recently" "Really? That's new for you" "Ya, it makes me feel like a kid again, and I don't necessarily have to worry about if I'm doing it right.";You can just be carefree when you paint.;good
+"How is it going friend" "I am doing much better now that the assignment is out of the way";You really should have started the assignment earlier;bad
+"did you tell her about how you feel" "I'm not sure she would understand" ;Of course she would;bad
+"I just don't know what to do" "I mean you are trying your best" "Ya but I feel like no matter what I do, it's not good enough";That's because you are not, in fact, good enough;bad
+"It was so embarrassing" "Ya I can imagine" "Literally in front of all my coworkers he would not stop yelling at me";That's rough buddy;bad
+"I've picked up painting recently" "Really? That's new for you" "Ya, it makes me feel like a kid again, and I don't necessarily have to worry about if I'm doing it right.";I'm very good at painting;bad

@@ -217,10 +217,14 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
             val testFileReader = BufferedReader(InputStreamReader(testFile));
 
             val badSubStrings = arrayOf(
-                "The given response does not meet the criteria for a good reflection"
+                "The given response does not meet the criteria for a good reflection",
+                "not good",
+                "not a good"
             );
             val goodSubStrings = arrayOf(
-                "The reflection is good because"
+                "The reflection is good because",
+                "This is a good reflective",
+                "The given response is a good reflection"
             )
 
             // Get the first test case.
@@ -230,7 +234,8 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
             var inconclusivelyClassified = 0
             // Loop until we have run out of test cases.
             while(line != null){
-                testCaseCount+=1;
+
+                testCaseCount += 1;
 
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(kotlinx.coroutines.Runnable {
@@ -241,48 +246,58 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
                 // Parse the entry.
                 var testCaseSplit = line.split(";");
-                if(testCaseSplit.size != 3){
+                if (testCaseSplit.size != 3) {
                     Log.e("Error", "Cannot process test case $testCaseCount: $line");
                     // Get the next test case.
                     line = testFileReader.readLine()
                     continue;
                 }
 
-                // Make the OpenAI request.
-                val combinedInput = ratingPrompt +
-                        "\nOrignal Statment:\"" +  testCaseSplit[0].trim() +"\"" +
-                        "\nResponse:\"" + testCaseSplit[1].trim()  +"\""
-                val outputText = makeChatGPTRequest(combinedInput, ratingTokens, temperature = 0.1)
+                for (i in 0..2) {
+                    // Make the OpenAI request.
+                    val combinedInput = ratingPrompt +
+                            "\nOrignal Statment:\"" + testCaseSplit[0].trim() + "\"" +
+                            "\nResponse:\"" + testCaseSplit[1].trim() + "\""
+                    val outputText =
+                        makeChatGPTRequest(combinedInput, ratingTokens, temperature = 0.1)
 
-                // Try and classify if OpenAI said this was a good or bad response.
-                var classifiedBad = false
-                for (substring in badSubStrings){
-                    if(outputText.contains(substring)){classifiedBad = true; break;}
-                }
-                var classifiedGood = false
-                for (substring in goodSubStrings){
-                    if(outputText.contains(substring)){classifiedGood = true; break;}
-                }
+                    // Try and classify if OpenAI said this was a good or bad response.
+                    var classifiedBad = false
+                    for (substring in badSubStrings) {
+                        if (outputText.contains(substring)) {
+                            classifiedBad = true; break;
+                        }
+                    }
+                    var classifiedGood = false
+                    for (substring in goodSubStrings) {
+                        if (outputText.contains(substring)) {
+                            classifiedGood = true; break;
+                        }
+                    }
 
-                Log.i("Testinfo", "Testcase $testCaseCount: $line")
-                Log.i("Testinfo", "Testcase $testCaseCount classification: $outputText")
+                    Log.i("Testinfo", "Testcase $testCaseCount: $line")
+                    Log.i("Testinfo", "Testcase $testCaseCount classification: $outputText")
 
-                // If both classified as both or neither, error out.
-                if(classifiedBad == classifiedGood){
-                    inconclusivelyClassified+=1;
-                    Log.i("Testinfo", "Testcase $testCaseCount result: Inconclusive!");
-                }
-                // Correctly classified.
-                else if(
-                    (classifiedBad && testCaseSplit[2].trim() == "bad") ||
-                    (classifiedGood && testCaseSplit[2].trim() == "good")
-                ){
-                    correctlyClassified+=1
-                    Log.i("Testinfo", "Testcase $testCaseCount result: Correctly Classified!");
-                }
-                // Incorrect.
-                else {
-                    Log.i("Testinfo", "Testcase $testCaseCount result: Incorrectly Classified!");
+                    // If both classified as both or neither, error out.
+                    if (classifiedBad == classifiedGood) {
+                        inconclusivelyClassified += 1;
+                        Log.i("Testinfo", "Testcase $testCaseCount result: Inconclusive!");
+                    }
+                    // Correctly classified.
+                    else if (
+                        (classifiedBad && testCaseSplit[2].trim() == "bad") ||
+                        (classifiedGood && testCaseSplit[2].trim() == "good")
+                    ) {
+                        correctlyClassified += 1
+                        Log.i("Testinfo", "Testcase $testCaseCount result: Correctly Classified!");
+                    }
+                    // Incorrect.
+                    else {
+                        Log.i(
+                            "Testinfo",
+                            "Testcase $testCaseCount result: Incorrectly Classified!"
+                        );
+                    }
                 }
 
                 // Get the next test case.
@@ -291,8 +306,8 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
             // Report the final result.
             if(inconclusivelyClassified>0) Log.i("TestResult", "couldNotClassifyAutomatically:    $inconclusivelyClassified");
-            Log.i("TestResult", "accuracyRatio:    $correctlyClassified / ${testCaseCount-inconclusivelyClassified}");
-            Log.i("TestResult", "accuracy:    ${correctlyClassified / (testCaseCount-inconclusivelyClassified) * 100}%");
+            Log.i("TestResult", "accuracyRatio:    $correctlyClassified / ${testCaseCount*3-inconclusivelyClassified}");
+            Log.i("TestResult", "accuracy:    ${correctlyClassified * 100.0 / (testCaseCount*3-inconclusivelyClassified)}%");
 
             testFileReader.close();
 
