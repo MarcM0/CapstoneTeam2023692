@@ -1,6 +1,11 @@
 package com.example.convoassistant
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.KeyEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -15,6 +20,7 @@ import com.google.gson.Gson
 
 val gsonParser = Gson()
 val httpClient = HttpClient(Android)
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,7 +44,10 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
 
-
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        Log.i("asdadasd", "asdasdasd");
+        return false
     }
 }

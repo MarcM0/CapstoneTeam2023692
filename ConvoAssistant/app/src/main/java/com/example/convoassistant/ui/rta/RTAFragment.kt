@@ -1,7 +1,17 @@
 package com.example.convoassistant.ui.rta
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.media.MediaPlayer
+import android.media.session.MediaController
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,18 +23,24 @@ import com.example.convoassistant.GoogleSpeechToTextInterface
 import com.example.convoassistant.R
 import com.example.convoassistant.SettingWrapper
 import com.example.convoassistant.TTSInterfaceClass
+import com.example.convoassistant.WordSequenceAligner
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
 import kotlinx.coroutines.*
 import java.util.concurrent.ScheduledFuture
 import kotlin.concurrent.thread
-import kotlin.time.Duration
-import kotlin.time.measureTime
-import com.example.convoassistant.WordSequenceAligner
 import kotlin.time.DurationUnit
+import kotlin.time.measureTime
 
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
+
+class HeadphoneButtonClickReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        Log.i("asdadasd", "asdasdasd");
+    }
+}
+
 
 class RTAFragment: Fragment(){ 
 
@@ -47,8 +63,41 @@ class RTAFragment: Fragment(){
     // App settings.
     private lateinit var settings: SettingWrapper;
 
+    private lateinit var mediaPlayer: MediaPlayer;
+    private lateinit var mediaSession: MediaSession;
+    private lateinit var mediaController: MediaController;
+    private lateinit var stateBuilder: PlaybackState.Builder;
+
     // Recording managing thread.
     private var recordingBackgroundJob: Job? = null;
+
+
+    private inner class MediaSessionCallback : MediaSession.Callback() {
+        override fun onPlay() {
+            Log.i("media", "play")
+            super.onPlay()
+        }
+
+        override fun onPause() {
+            Log.i("media", "pause")
+            super.onPause()
+            // Handle pause event
+        }
+
+        override fun onSkipToNext() {
+            Log.i("media", "next")
+            super.onSkipToNext()
+        }
+
+        override fun onSkipToPrevious() {
+            Log.i("media", "prev")
+            super.onSkipToPrevious()
+        }
+
+        override fun onStop() {
+            super.onStop()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,6 +141,39 @@ class RTAFragment: Fragment(){
         recordingB.setOnClickListener {
             recordingButtonCallback();
         }
+
+        var audioFile = requireContext().assets.openFd("rtaMode/recordings/test1.m4a");
+
+        mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(audioFile.fileDescriptor, audioFile.startOffset, audioFile.length)
+        mediaPlayer.prepare()
+        mediaPlayer.start()
+
+
+        mediaSession = MediaSession(requireContext(), "MusicService").apply {
+            setCallback(MediaSessionCallback())
+            setFlags(
+                MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS
+            )
+        }
+
+//        val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
+//        mediaButtonIntent.component =  ComponentName(requireContext(), HeadphoneButtonClickReceiver::class.java)
+//        val pendingIntent = PendingIntent.getBroadcast(context, 0, mediaButtonIntent, 0)
+//        mediaSession.setMediaButtonReceiver(pendingIntent)
+
+
+        stateBuilder = PlaybackState.Builder().setActions(
+            PlaybackState.ACTION_PLAY
+        ).setState(
+            PlaybackState.STATE_PLAYING,
+            0,
+            1.0F
+        )
+
+        mediaSession.setPlaybackState(stateBuilder.build())
+
+        mediaSession.isActive = true
     }
 
     fun recordingButtonCallback(isAutoStop: Boolean = false){
@@ -308,7 +390,7 @@ class RTAFragment: Fragment(){
                 val textFilePath = "$expectedDirPath/$file".substringBeforeLast(".")+".txt";
                 val textTruth = reWhiteSpace.replace(requireContext().assets.open(textFilePath).bufferedReader().use {
                     it.readText()
-                }, " ").toLowerCase().strip();
+                }, " ").toLowerCase().trim()
 
                     // Display recording time safely on UI thread.
                 if (getActivity() != null) {
@@ -334,11 +416,11 @@ class RTAFragment: Fragment(){
                 Log.i("Testinfo","timeTakenTotal:"+(timeTakenGoogle+timeTakenOpenAI));
                 timesListTotal.add((timeTakenGoogle+timeTakenOpenAI).toDouble(DurationUnit.SECONDS));
 
-                val detectedText = reWhiteSpace.replace(googleAPI.outputData.recongizedText, " ").toLowerCase().strip();
+                val detectedText = reWhiteSpace.replace(googleAPI.outputData.recongizedText, " ").toLowerCase().trim();
 
                 //word lists with only alphanumeric stuff
-                val truthWordList = reNotAlphaNum.replace(textTruth, "").strip().split("\\s+".toRegex())
-                val detectedWordList = reNotAlphaNum.replace(detectedText, "").strip().split("\\s+".toRegex())
+                val truthWordList = reNotAlphaNum.replace(textTruth, "").trim().split("\\s+".toRegex())
+                val detectedWordList = reNotAlphaNum.replace(detectedText, "").trim().split("\\s+".toRegex())
                 Log.i("Testinfo","truthWordList:   "+truthWordList.toString());
                 Log.i("Testinfo","detectedWordList:"+detectedWordList.toString());
 
@@ -357,7 +439,7 @@ class RTAFragment: Fragment(){
                 val speaker2Truth: MutableList<String> = mutableListOf()
                 var isSpeaker1 = true;
                 for (utterance in reInQuotes.findAll(textTruth)){
-                    val wordsToAdd = reNotAlphaNum.replace(utterance.value, "").strip().split("\\s+".toRegex())
+                    val wordsToAdd = reNotAlphaNum.replace(utterance.value, "").trim().split("\\s+".toRegex())
                     if(isSpeaker1){
                         speaker1Truth.addAll(wordsToAdd)
                     }else{
@@ -370,7 +452,7 @@ class RTAFragment: Fragment(){
                 val speaker2Predict: MutableList<String> = mutableListOf()
                 isSpeaker1 = true;
                 for (utterance in reInQuotes.findAll(detectedText)){
-                    val wordsToAdd = reNotAlphaNum.replace(utterance.value, "").strip().split("\\s+".toRegex())
+                    val wordsToAdd = reNotAlphaNum.replace(utterance.value, "").trim().split("\\s+".toRegex())
                     if(isSpeaker1){
                         speaker1Predict.addAll(wordsToAdd)
                     }else{
