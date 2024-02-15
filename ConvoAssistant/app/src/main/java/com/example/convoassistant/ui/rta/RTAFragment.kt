@@ -1,17 +1,16 @@
 package com.example.convoassistant.ui.rta
 
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.app.PendingIntent;
 import android.media.MediaPlayer
 import android.media.session.MediaController
-import android.media.session.MediaSession
-import android.media.session.PlaybackState
 import android.os.Bundle
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,12 +31,13 @@ import kotlin.concurrent.thread
 import kotlin.time.DurationUnit
 import kotlin.time.measureTime
 
+
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
 
 class HeadphoneButtonClickReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i("asdadasd", "asdasdasd");
+        Log.i("asdadasd2", "asdasdasd2");
     }
 }
 
@@ -64,40 +64,13 @@ class RTAFragment: Fragment(){
     private lateinit var settings: SettingWrapper;
 
     private lateinit var mediaPlayer: MediaPlayer;
-    private lateinit var mediaSession: MediaSession;
+    private lateinit var mediaSession: MediaSessionCompat;
     private lateinit var mediaController: MediaController;
-    private lateinit var stateBuilder: PlaybackState.Builder;
+    private lateinit var stateBuilder: PlaybackStateCompat.Builder;
 
     // Recording managing thread.
     private var recordingBackgroundJob: Job? = null;
 
-
-    private inner class MediaSessionCallback : MediaSession.Callback() {
-        override fun onPlay() {
-            Log.i("media", "play")
-            super.onPlay()
-        }
-
-        override fun onPause() {
-            Log.i("media", "pause")
-            super.onPause()
-            // Handle pause event
-        }
-
-        override fun onSkipToNext() {
-            Log.i("media", "next")
-            super.onSkipToNext()
-        }
-
-        override fun onSkipToPrevious() {
-            Log.i("media", "prev")
-            super.onSkipToPrevious()
-        }
-
-        override fun onStop() {
-            super.onStop()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -142,31 +115,53 @@ class RTAFragment: Fragment(){
             recordingButtonCallback();
         }
 
+
+    }
+
+    fun recordingButtonCallback(isAutoStop: Boolean = false){
         var audioFile = requireContext().assets.openFd("rtaMode/recordings/test1.m4a");
 
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(audioFile.fileDescriptor, audioFile.startOffset, audioFile.length)
-        mediaPlayer.prepare()
-        mediaPlayer.start()
 
+        val mMediaSessionCallback = object : MediaSessionCompat.Callback() {
+            override fun onPlay() {
+                Log.i("media", "play")
+                super.onPlay()
+            }
 
-        mediaSession = MediaSession(requireContext(), "MusicService").apply {
-            setCallback(MediaSessionCallback())
-            setFlags(
-                MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS
-            )
+            override fun onPause() {
+                Log.i("media", "pause")
+                super.onPause()
+                // Handle pause event
+            }
+
+            override fun onSkipToNext() {
+                Log.i("media", "next")
+                super.onSkipToNext()
+            }
+
+            override fun onSkipToPrevious() {
+                Log.i("media", "prev")
+                super.onSkipToPrevious()
+            }
+
+            override fun onStop() {
+                super.onStop()
+            }
         }
 
-//        val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
-//        mediaButtonIntent.component =  ComponentName(requireContext(), HeadphoneButtonClickReceiver::class.java)
-//        val pendingIntent = PendingIntent.getBroadcast(context, 0, mediaButtonIntent, 0)
-//        mediaSession.setMediaButtonReceiver(pendingIntent)
+
+        mediaSession = MediaSessionCompat(requireContext(), "MusicService")
+        mediaSession.setCallback(mMediaSessionCallback)
+        mediaSession.setFlags(
+            MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+        )
 
 
-        stateBuilder = PlaybackState.Builder().setActions(
-            PlaybackState.ACTION_PLAY
+
+        stateBuilder = PlaybackStateCompat.Builder().setActions(
+            PlaybackStateCompat.ACTION_PLAY
         ).setState(
-            PlaybackState.STATE_PLAYING,
+            PlaybackStateCompat.STATE_PLAYING,
             0,
             1.0F
         )
@@ -174,9 +169,12 @@ class RTAFragment: Fragment(){
         mediaSession.setPlaybackState(stateBuilder.build())
 
         mediaSession.isActive = true
-    }
 
-    fun recordingButtonCallback(isAutoStop: Boolean = false){
+        mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(audioFile.fileDescriptor, audioFile.startOffset, audioFile.length)
+        mediaPlayer.prepare()
+        mediaPlayer.start()
+
         // Handle Starting the recording.
         if (!googleAPI.recording) {
             // Run in thread so we don't block main.

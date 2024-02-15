@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.example.convoassistant"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 30
         versionCode = 1
         versionName = "1.0"
 
@@ -56,6 +56,8 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.2")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation("io.ktor:ktor-client-core:$ktorVersion")
