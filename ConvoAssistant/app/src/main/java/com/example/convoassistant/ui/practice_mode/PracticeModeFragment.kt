@@ -45,9 +45,15 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
 
     //views
     private lateinit var outputTV: TextView
+    private lateinit var streakTV: TextView
     private lateinit var micIB: Button
     private lateinit var generatePromptB: Button
     private lateinit var testModeB: Button
+
+    //settings and streaks
+    private lateinit var settings: SettingWrapper
+    private var streak = 0;
+
 
 
     override fun onCreateView(
@@ -71,6 +77,7 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         outputTV =  requireView().findViewById(R.id.speech_2_text_out)
         micIB = requireView().findViewById(R.id.rate_reflection_button)
         testModeB = requireView().findViewById((R.id.pratice_test))
+        streakTV = requireView().findViewById((R.id.StreakText))
 
         generatePromptB = requireView().findViewById(R.id.new_practice_prompt)
 
@@ -93,17 +100,23 @@ class PracticeModeFragment : STTFragment(){ // Fragment() {
         ttsInterface = TTSInterfaceClass(requireContext())
 
         //load settings
-        val settings = SettingWrapper(requireActivity())
+        settings = SettingWrapper(requireActivity())
 
         scenarioPrompt = settings.get("Pra_Scenario_LLM_Prompt")
         scenarioTokens = settings.get("Pra_Scenario_LLM_Output_Token_Count").toInt()
 
         ratingPrompt = settings.get("Pra_Rating_LLM_Prompt")
         ratingTokens = settings.get("Pra_Rating_LLM_Output_Token_Count").toInt()
+
+        //check status of streak, no increment since they have not practiced yet
+        streakTV.text = settings.getStreakPracticeMode(allowIncrement=false).toString();
     }
 
     //runs when speech to text returns result
     override fun onMicResult(input: String){
+        //increment streak
+        streakTV.text = settings.getStreakPracticeMode(allowIncrement=true).toString();
+
         //run in thread so we don't block main
         thread(start = true) {
             try{

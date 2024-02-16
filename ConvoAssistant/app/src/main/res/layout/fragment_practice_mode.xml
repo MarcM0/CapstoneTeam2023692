@@ -18,15 +18,14 @@
         <TextView
             android:id="@+id/speech_2_text_out"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="354dp"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="75dp"
+            android:layout_marginTop="100dp"
             android:layout_marginEnd="50dp"
+            android:layout_weight="10"
             android:scrollbars="vertical"
             android:text="Text output will appear here"
-            android:textAlignment="center"
-            android:layout_weight="10"
-            />
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/new_practice_prompt"
@@ -60,9 +59,9 @@
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="0dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:insetLeft="0dp"
@@ -75,6 +74,32 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="35dp" />
+
+        <ImageView
+            android:id="@+id/StreakImage"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/baseline_fire_24" />
+
+        <TextView
+            android:id="@+id/StreakText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/StreakImage"
+            android:layout_alignTop="@+id/StreakImage"
+            android:layout_alignRight="@+id/StreakImage"
+            android:layout_alignBottom="@+id/StreakImage"
+            android:layout_marginTop="15dp"
+            android:textSize="25dp"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="#FFFFFF" />
 
     </RelativeLayout>
 
