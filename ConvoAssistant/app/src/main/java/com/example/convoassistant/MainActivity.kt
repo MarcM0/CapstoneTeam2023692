@@ -1,17 +1,22 @@
 package com.example.convoassistant
 
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.util.Log
+import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.convoassistant.databinding.ActivityMainBinding
-
+import com.example.convoassistant.ui.rta.RTAFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
-import com.google.gson.Gson
+
 
 val gsonParser = Gson()
 val httpClient = HttpClient(Android)
@@ -38,7 +43,27 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
 
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 
+            // Get the current view.
+            val navHostFragment = supportFragmentManager.primaryNavigationFragment as NavHostFragment;
+            val fragmentManager = navHostFragment.childFragmentManager;
+            val currentFragment: Fragment? = fragmentManager.primaryNavigationFragment;
+
+            // Error check.
+            if(currentFragment == null) {
+                Log.e("Error","Could not find fragment.");
+                return false;
+            }
+
+            // Toggle recording on the RTA mode screen.
+            if(currentFragment is RTAFragment) currentFragment.recordingButtonCallback();
+
+            return true;
+        }
+        return false;
     }
 }
