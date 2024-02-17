@@ -16,9 +16,7 @@ import com.example.convoassistant.TTSInterfaceClass
 import com.example.convoassistant.databinding.FragmentRtaBinding
 import com.example.convoassistant.makeChatGPTRequest
 import kotlinx.coroutines.*
-import java.util.concurrent.ScheduledFuture
 import kotlin.concurrent.thread
-import kotlin.time.Duration
 import kotlin.time.measureTime
 import com.example.convoassistant.WordSequenceAligner
 import kotlin.time.DurationUnit
@@ -29,7 +27,6 @@ import kotlin.time.DurationUnit
 class RTAFragment: Fragment(){ 
 
     private var _binding: FragmentRtaBinding? = null
-    private lateinit  var autoStopRequest: ScheduledFuture<*>
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -131,9 +128,23 @@ class RTAFragment: Fragment(){
                 } catch (e: Exception) {
                     Log.e("Error", e.toString());
                 }
-            }}
+            }
+            }
         } else {
-            stopRecording();
+            try {
+                stopRecording();
+            } catch(e: Exception) {
+                Log.e("Error", e.toString());
+                try {
+                    requireActivity().runOnUiThread(Runnable {
+                        recordingB.text = "Start Recording"
+                        outputTV.text =
+                            "Error occured, maybe you need to enable permissions\n INFO: " + e.message
+                    });
+                } catch (e: Exception) {
+                    Log.e("Error", e.toString());
+                }
+        }
         }
     }
 
