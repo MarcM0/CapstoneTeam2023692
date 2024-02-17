@@ -1,8 +1,10 @@
 package com.example.convoassistant.ui.rta
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -25,6 +27,7 @@ import java.util.concurrent.ScheduledFuture
 import kotlin.concurrent.thread
 import kotlin.time.DurationUnit
 import kotlin.time.measureTime
+
 
 // Real time assistant mode interface
 // Vaguely based on //https://www.geeksforgeeks.org/speech-to-text-application-in-android-with-kotlin/
@@ -71,6 +74,10 @@ class RTAFragment: Fragment(){
 
     // Recording managing thread.
     private var recordingBackgroundJob: Job? = null;
+
+    //headphone button
+    private lateinit var mReceiverComponent: ComponentName
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -445,6 +452,19 @@ class RTAFragment: Fragment(){
             }
         }
         } }
+
+    override fun onResume() {
+        super.onResume()
+        mReceiverComponent = ComponentName(requireContext(),HeadphoneButtonClickReceiver::class.java)
+        val mAudioManager =  requireContext().getSystemService(AudioManager::class.java)
+        mAudioManager.registerMediaButtonEventReceiver(mReceiverComponent)
+    }
+
+    override  fun onPause(){
+        super.onPause()
+        val mAudioManager =  requireContext().getSystemService(AudioManager::class.java)
+        mAudioManager.unregisterMediaButtonEventReceiver(mReceiverComponent)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView();
