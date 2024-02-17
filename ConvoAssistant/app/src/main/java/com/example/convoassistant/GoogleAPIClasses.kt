@@ -144,8 +144,13 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         }
 
         var fullTranscript = "";
+        var previousSnippet = "";
         for(transciptResult in responseResultList){
-            fullTranscript += transciptResult.getAlternatives(0).transcript
+            // Filter out duplicates.
+            if(previousSnippet != transciptResult.getAlternatives(0).transcript) {
+                fullTranscript += transciptResult.getAlternatives(0).transcript
+                previousSnippet = transciptResult.getAlternatives(0).transcript
+            }
         }
         val transciptWords = fullTranscript.split(" ");
 
