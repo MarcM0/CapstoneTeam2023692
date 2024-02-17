@@ -131,20 +131,7 @@ class RTAFragment: Fragment(){
             }
             }
         } else {
-            try {
-                stopRecording();
-            } catch(e: Exception) {
-                Log.e("Error", e.toString());
-                try {
-                    requireActivity().runOnUiThread(Runnable {
-                        recordingB.text = "Start Recording"
-                        outputTV.text =
-                            "Error occured, maybe you need to enable permissions\n INFO: " + e.message
-                    });
-                } catch (e: Exception) {
-                    Log.e("Error", e.toString());
-                }
-        }
+            stopRecording();
         }
     }
 
@@ -437,13 +424,17 @@ class RTAFragment: Fragment(){
 
     override fun onDestroyView() {
         super.onDestroyView();
-        // Clean up recording thread.
-        if(recordingBackgroundJob!=null){
-            recordingBackgroundJob?.cancel();
-            recordingBackgroundJob = null;
+        try {
+            // Clean up recording thread.
+            if (recordingBackgroundJob != null) {
+                recordingBackgroundJob?.cancel();
+                recordingBackgroundJob = null;
+            }
+            ttsInterface.onDestroy();
+            googleAPI.onDestroy();
+            _binding = null;
+        } catch (e: Exception) {
+            Log.e("Error", e.toString());
         }
-        ttsInterface.onDestroy();
-        googleAPI.onDestroy();
-        _binding = null;
     }
 }
