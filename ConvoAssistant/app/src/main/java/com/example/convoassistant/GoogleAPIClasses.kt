@@ -271,6 +271,11 @@ class GoogleSpeechToTextInterface(private val context: Context) {
             audioRecord.release();
         }
 
-        googleSpeechClient.close();
+        try {
+            googleSpeechClient.shutdownNow();
+            googleSpeechClient.close()
+        }catch (e: Exception){
+            Log.e("Error",e.toString())
+        }
     }
 }
