@@ -78,7 +78,11 @@ class SettingWrapper(activity: Activity) {
         var noChange = false;
         if(streak == -1){
             //no previously recorded streak
-            streak = 0;
+            if(allowIncrement){
+                streak = 1;
+            }else{
+                streak = 0;
+            }
         }else if((streakDay == dayOfYear) && (streakYear == year)){
             //no change, same day
             noChange = true;
