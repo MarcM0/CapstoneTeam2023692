@@ -91,7 +91,7 @@ class RTAFragment: Fragment(){
         }
     }
 
-    fun recordingButtonCallback(isAutoStop: Boolean = false){
+    fun recordingButtonCallback(){
         // Handle Starting the recording.
         if (!googleAPI.recording) {
             // Run in thread so we don't block main.
