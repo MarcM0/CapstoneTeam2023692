@@ -220,6 +220,7 @@ class RTAFragment: Fragment(){
             }
         } catch(e: Exception) {
             Log.e("Error", e.toString());
+            currentlyProcessing = false;
             try {
                 requireActivity().runOnUiThread(Runnable {
                     recordingB.text = "Start Recording"
