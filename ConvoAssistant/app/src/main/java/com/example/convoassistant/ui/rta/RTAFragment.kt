@@ -47,6 +47,8 @@ class RTAFragment: Fragment(){
     // Recording managing thread.
     private var recordingBackgroundJob: Job? = null;
 
+    private var currentlyProcessing = false;
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -89,9 +91,13 @@ class RTAFragment: Fragment(){
         recordingB.setOnClickListener {
             recordingButtonCallback();
         }
+
+        currentlyProcessing = false;
     }
 
     fun recordingButtonCallback(){
+        if(currentlyProcessing) return;
+
         // Handle Starting the recording.
         if (!googleAPI.recording) {
             // Run in thread so we don't block main.
@@ -179,11 +185,14 @@ class RTAFragment: Fragment(){
             ttsInterface.speakOut(outputText);
         }
 
+        currentlyProcessing = false;
         return true;
     }
 
     fun stopRecording(){
         thread(start = true) { try {
+            currentlyProcessing = true;
+
             // Handle ending the recording.
             googleAPI.stopRecording();
 
@@ -206,6 +215,7 @@ class RTAFragment: Fragment(){
             googleAPI.processRecording(null);
 
             if(!stopRecordingHelper()){
+                currentlyProcessing = false;
                 return@thread
             }
         } catch(e: Exception) {
