@@ -61,10 +61,9 @@ class GoogleSpeechToTextInterface(private val context: Context) {
 
     var recording: Boolean = false;
     private var recordingFile: File;
-    private var debugFile: File;
+//    private var debugFile: File;
 
     var outputData: OutputStruct = OutputStruct();
-
 
     // Sets up the service.
     init {
@@ -101,10 +100,10 @@ class GoogleSpeechToTextInterface(private val context: Context) {
                 .toString(), "/assistantCacheRecording.m4a"
         );
 
-        debugFile = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-                .toString(), "/recordingTranscript.txt" //todo
-        );
+//        debugFile = File(
+//            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+//                .toString(), "/recordingTranscript.txt" //todo
+//        );
     }
 
     fun stopRecording() {
@@ -153,7 +152,6 @@ class GoogleSpeechToTextInterface(private val context: Context) {
             }
         }
         val transciptWords = fullTranscript.split(" ");
-
 
         // Fetch the diarization output.
         val finalResult = responseResultList.last().alternativesList[0];
@@ -212,11 +210,14 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         Log.i("undiarizedText", fullTranscript )
         Log.i("diarizedText", outputData.recongizedText )
 
+        // Delete the recording file after its been processed.
+        try{ recordingFile.delete();
+        } catch (e: Exception) {}
         // Write the transcript to a file for debugging.
-        val outputStreamWriter =
-            OutputStreamWriter(debugFile.outputStream());
-        outputStreamWriter.write(outputData.recongizedText);
-        outputStreamWriter.close();
+//        val outputStreamWriter =
+//            OutputStreamWriter(debugFile.outputStream());
+//        outputStreamWriter.write(outputData.recongizedText);
+//        outputStreamWriter.close();
     }
 
     fun startRecording(CurrActivity: Activity) {
