@@ -116,108 +116,117 @@ class GoogleSpeechToTextInterface(private val context: Context) {
         recording = false;
     }
     fun processRecording(filename: InputStream?){
-        // Read in the file in a format google can read use. The recorded file if no file is passed.
-        val recordingInputStream = filename ?: FileInputStream(recordingFile);
-        if(recordingInputStream.available() <= 0){
-            return;
-        }
-        recognitionInput = RecognitionAudio.newBuilder().setContent(
-            ByteString.copyFrom(recordingInputStream.readBytes())
-        ).build();
-        Log.i("info", "Google Request Size: "+ recognitionInput.serializedSize / 1024.0 + "KB");
+        try {
+            // Read in the file in a format google can read use. The recorded file if no file is passed.
+            val recordingInputStream = filename ?: FileInputStream(recordingFile);
+            if (recordingInputStream.available() <= 0) {
+                return;
+            }
+            recognitionInput = RecognitionAudio.newBuilder().setContent(
+                ByteString.copyFrom(recordingInputStream.readBytes())
+            ).build();
+            Log.i(
+                "info",
+                "Google Request Size: " + recognitionInput.serializedSize / 1024.0 + "KB"
+            );
 
-        // Perform STT and digitization.
+            // Perform STT and digitization.
 
 
-        //TODO use recognize if < 1 min, longRunningRecognizeAsync if >= 1min
+            //TODO use recognize if < 1 min, longRunningRecognizeAsync if >= 1min
 //        val speechToTextClientResponse = googleSpeechClient.longRunningRecognizeAsync(recognitionConfig, recognitionInput);
 //        while (!speechToTextClientResponse.isDone()) { //TODO bottleneck
 //            // Wait a couple ms to not overload the CPU.
 //            sleep(100);
 //        }
-        val speechToTextClientResponse = googleSpeechClient.recognize(recognitionConfig, recognitionInput);
-        val responseResultList = speechToTextClientResponse.resultsList;
-        // val responseResultList = speechToTextClientResponse.get().resultsList;
-        if(speechToTextClientResponse.resultsList.isEmpty()) {
-            return;
-        }
-
-        var fullTranscript = "";
-        var previousSnippet = "";
-        for(transciptResult in responseResultList){
-            // Filter out duplicates.
-            if(previousSnippet != transciptResult.getAlternatives(0).transcript) {
-                fullTranscript += transciptResult.getAlternatives(0).transcript
-                previousSnippet = transciptResult.getAlternatives(0).transcript
+            val speechToTextClientResponse =
+                googleSpeechClient.recognize(recognitionConfig, recognitionInput);
+            val responseResultList = speechToTextClientResponse.resultsList;
+            // val responseResultList = speechToTextClientResponse.get().resultsList;
+            if (speechToTextClientResponse.resultsList.isEmpty()) {
+                return;
             }
-        }
-        val transciptWords = fullTranscript.split(" ");
 
-        // Fetch the diarization output.
-        val finalResult = responseResultList.last().alternativesList[0];
-        if(finalResult.wordsCount>0) {
-            // Split the dialogue up based on speakers.
-            outputData.recongizedText = "";
-            var currentSpeaker = -1;
-            var speechSnippet = "";
-            var diarizationIndex = 0;
-            val newSnippet = "\n\""
-            var pasteTheRest = false;
-            for (word in transciptWords) {
-                // Panic mode -> paste the rest of the transcript under a new user.
-                if (pasteTheRest) {
-                    speechSnippet += word + " ";
-                    continue;
+            var fullTranscript = "";
+            var previousSnippet = "";
+            for (transciptResult in responseResultList) {
+                // Filter out duplicates.
+                if (previousSnippet != transciptResult.getAlternatives(0).transcript) {
+                    fullTranscript += transciptResult.getAlternatives(0).transcript
+                    previousSnippet = transciptResult.getAlternatives(0).transcript
                 }
+            }
+            val transciptWords = fullTranscript.split(" ");
 
-                // Check to see if the diarized word matches the transcript.
-                var currentDiarizationWord = finalResult.getWords(diarizationIndex);
-                if (word == currentDiarizationWord.word) {
-                    // Speaker change detected.
-                    if (currentDiarizationWord.speakerTag != currentSpeaker) {
-                        // End the previous speaker and add to the output.
-                        if (speechSnippet != "") {
-                            outputData.recongizedText += speechSnippet + '"';
-                        }
-
-                        // Set up the new speaker.
-                        currentSpeaker = currentDiarizationWord.speakerTag;
-                        speechSnippet = newSnippet;
+            // Fetch the diarization output.
+            val finalResult = responseResultList.last().alternativesList[0];
+            if (finalResult.wordsCount > 0) {
+                // Split the dialogue up based on speakers.
+                outputData.recongizedText = "";
+                var currentSpeaker = -1;
+                var speechSnippet = "";
+                var diarizationIndex = 0;
+                val newSnippet = "\n\""
+                var pasteTheRest = false;
+                for (word in transciptWords) {
+                    // Panic mode -> paste the rest of the transcript under a new user.
+                    if (pasteTheRest) {
+                        speechSnippet += word + " ";
+                        continue;
                     }
 
-                    // Build the snippet.
-                    speechSnippet += currentDiarizationWord.word + " ";
-                    diarizationIndex++;
-                } else {
-                    Log.e("Error","Used panic mode during diarization")
-                    // Mismatched word -> enter panic mode.
-                    pasteTheRest = true;
+                    // Check to see if the diarized word matches the transcript.
+                    var currentDiarizationWord = finalResult.getWords(diarizationIndex);
+                    if (word == currentDiarizationWord.word) {
+                        // Speaker change detected.
+                        if (currentDiarizationWord.speakerTag != currentSpeaker) {
+                            // End the previous speaker and add to the output.
+                            if (speechSnippet != "") {
+                                outputData.recongizedText += speechSnippet + '"';
+                            }
 
-                    // Set up the new speaker for the panic text.
-                    outputData.recongizedText += speechSnippet + '"';
-                    speechSnippet = newSnippet;
-                    currentSpeaker++;
+                            // Set up the new speaker.
+                            currentSpeaker = currentDiarizationWord.speakerTag;
+                            speechSnippet = newSnippet;
+                        }
+
+                        // Build the snippet.
+                        speechSnippet += currentDiarizationWord.word + " ";
+                        diarizationIndex++;
+                    } else {
+                        Log.e("Error", "Used panic mode during diarization")
+                        // Mismatched word -> enter panic mode.
+                        pasteTheRest = true;
+
+                        // Set up the new speaker for the panic text.
+                        outputData.recongizedText += speechSnippet + '"';
+                        speechSnippet = newSnippet;
+                        currentSpeaker++;
+                    }
                 }
+
+                // End the transcription.
+                outputData.recongizedText += speechSnippet + '"';
+                outputData.lastSpeaker = currentSpeaker;
+            } else {
+                outputData.recongizedText += '"' + fullTranscript + '"'
             }
 
-            // End the transcription.
-            outputData.recongizedText += speechSnippet + '"';
-            outputData.lastSpeaker = currentSpeaker;
-        }else{
-            outputData.recongizedText += '"'+fullTranscript+'"'
-        }
+            Log.i("undiarizedText", fullTranscript)
+            Log.i("diarizedText", outputData.recongizedText)
 
-        Log.i("undiarizedText", fullTranscript )
-        Log.i("diarizedText", outputData.recongizedText )
-
-        // Delete the recording file after its been processed.
-        try{ recordingFile.delete();
-        } catch (e: Exception) {}
-        // Write the transcript to a file for debugging.
+        }finally {
+            // Delete the recording file after its been processed.
+            try {
+                recordingFile.delete();
+            } catch (e: Exception) {
+            }
+            // Write the transcript to a file for debugging.
 //        val outputStreamWriter =
 //            OutputStreamWriter(debugFile.outputStream());
 //        outputStreamWriter.write(outputData.recongizedText);
 //        outputStreamWriter.close();
+        }
     }
 
     fun startRecording(CurrActivity: Activity) {
