@@ -17,7 +17,7 @@ ConvoAssistant is an innovative Android application developed to improve users' 
 - **Large Language Model Integration:** The application uses OpenAI’s GPT-3.5 turbo model to generate reflective dialogue.
 - **Audio Processing:** Audio input is converted to text for the LLM, and the text output is then converted back to audio to be played aloud to the user.
 - **Speaker Diarization:** In RTA Mode, the application uses Google Cloud’s Speech diarization platform to distinguish between different speakers in a conversation.
-- **Android Application** The application was developped using Kotlin within an Android Studio Project.
+- **Android Application** The application was developed using Kotlin within an Android Studio Project.
 
 
 ## Project Management
