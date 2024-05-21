@@ -1,6 +1,6 @@
 # Capstone Team 2023692 Wiki
 
-Welcome to the wiki for Capstone Team 2023692, comprising Marc Morcos, Stefan Scodellaro, and James Du. Our project focuses on enhancing reflective listening skills through an Android application named ConvoAssistant. This application is designed to assist users in engaging more effectively in conversations by leveraging advanced AI technologies.
+Welcome to the wiki for Capstone Team 2023692, comprising Marc Morcos, Stefan Scodellaro, and James Du. Our project focuses on enhancing reflective listening skills through an Android application named ConvoAssistant. This application is designed to assist users in engaging more effectively in conversations by leveraging advanced AI technologies. Our team was awarded a Certificate of Distinction for this capstone project.
 
 ## Application Overview
 
